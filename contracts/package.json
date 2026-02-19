@@ -1,0 +1,18 @@
+{
+  "name": "@bitagent/contracts",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "npx hardhat compile",
+    "test": "npx hardhat test",
+    "deploy:testnet": "npx hardhat run scripts/deploy.ts --network goatTestnet3"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "@openzeppelin/contracts": "^5.4.0",
+    "@openzeppelin/contracts-upgradeable": "^5.4.0",
+    "hardhat": "^2.22.0",
+    "typescript": "^5.4.0",
+    "ts-node": "^10.9.0"
+  }
+}

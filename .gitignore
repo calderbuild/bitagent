@@ -1,0 +1,14 @@
+node_modules/
+dist/
+build/
+.env
+.env.local
+*.log
+coverage/
+cache/
+artifacts/
+typechain-types/
+.playwright-mcp/
+.DS_Store
+*.sqlite
+*.sqlite3

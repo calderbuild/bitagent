@@ -1,0 +1,25 @@
+{
+  "name": "@bitagent/agent",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "start:auditor": "node dist/agents/code-auditor.js",
+    "start:translator": "node dist/agents/translate-bot.js",
+    "start:analyst": "node dist/agents/data-analyst.js",
+    "start:client": "node dist/client/index.js"
+  },
+  "dependencies": {
+    "ethers": "^6.13.0",
+    "express": "^4.21.0",
+    "better-sqlite3": "^11.0.0",
+    "@anthropic-ai/sdk": "^0.39.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/better-sqlite3": "^7.6.0",
+    "@types/node": "^22.0.0",
+    "typescript": "^5.4.0"
+  }
+}
