@@ -441,18 +441,18 @@ function stake(uint256 agentId) external payable {
 **1.1 部署 Mock USDC（含 EIP-3009）**
 - [x] 编写 MockUSDC.sol -- ERC20 + EIP-3009 `transferWithAuthorization` + EIP-712
 - [x] 参考 Circle FiatTokenV2 实现 `transferWithAuthorization`
-- [ ] 部署到 GOAT Testnet3 并 mint 测试代币
+- [x] 部署到 GOAT Testnet3 并 mint 测试代币 (MockUSDC: 0xB0035182Fb5EA1d65F2B41F04207a441664F7a67)
 
 **1.2 部署 ERC-8004 注册表**
-- [ ] Fork erc-8004-contracts 仓库
+- [x] Fork erc-8004-contracts 仓库（手动移植合约，修改 initializer 为 fresh deploy）
 - [x] 添加 GOAT Testnet3 网络配置到 hardhat.config.ts
 - [x] 编写简化部署脚本（UUPS 代理，跳过 vanity）
-- [ ] 部署 IdentityRegistryUpgradeable + ReputationRegistryUpgradeable
-- [ ] 验证: register() + giveFeedback() + getSummary()
+- [x] 部署 IdentityRegistryUpgradeable + ReputationRegistryUpgradeable (Identity proxy: 0x230760453aB274665f40c05a9785d5c75d1ec493, Reputation proxy: 0xcfdcba21CFCa75B192e2B8De92fD85a473C50e0C)
+- [x] 验证: register() + tokenURI() + getAgentWallet() 通过
 
 **1.3 部署 StakingVault**
 - [x] 编写 StakingVault.sol（BTC payable 质押 + slash + unstake）
-- [ ] 部署到 GOAT Testnet3
+- [x] 部署到 GOAT Testnet3 (StakingVault: 0xF1A94cab9681dBC28d3D4F21a9Ce58787920546B)
 - [x] 验证: stake() + effectiveStake() + slash()
 
 **1.4 搭建 x402 Facilitator**
