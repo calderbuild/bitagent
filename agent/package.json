@@ -5,20 +5,27 @@
   "type": "module",
   "scripts": {
     "build": "tsc",
-    "start:auditor": "node dist/agents/code-auditor.js",
-    "start:translator": "node dist/agents/translate-bot.js",
-    "start:analyst": "node dist/agents/data-analyst.js",
-    "start:client": "node dist/client/index.js"
+    "start:facilitator": "node dist/facilitator/server.js",
+    "start:auditor": "node dist/services/code-auditor.js",
+    "start:translator": "node dist/services/translate-bot.js",
+    "start:analyst": "node dist/services/data-analyst.js",
+    "start:client": "node dist/client/index.js",
+    "demo:local": "node dist/demo/e2e-local.js"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.39.0",
+    "@x402/core": "^2.3.1",
+    "@x402/evm": "^2.3.1",
+    "@x402/express": "^2.3.0",
+    "@x402/fetch": "^2.3.0",
+    "better-sqlite3": "^11.0.0",
     "ethers": "^6.13.0",
     "express": "^4.21.0",
-    "better-sqlite3": "^11.0.0",
-    "@anthropic-ai/sdk": "^0.39.0"
+    "viem": "^2.46.2"
   },
   "devDependencies": {
-    "@types/express": "^5.0.0",
     "@types/better-sqlite3": "^7.6.0",
+    "@types/express": "^5.0.0",
     "@types/node": "^22.0.0",
     "typescript": "^5.4.0"
   }

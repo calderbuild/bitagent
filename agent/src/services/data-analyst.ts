@@ -18,7 +18,7 @@ export async function startDataAnalyst() {
     privateKey: process.env.AGENT_ANALYST_KEY || "0x" + "c".repeat(64),
     port: parseInt(process.env.ANALYST_PORT || "3003"),
     stakeAmount: process.env.ANALYST_STAKE || "0.008",
-    pricePerCall: "20000", // 0.02 USDC
+    priceUsdc: 0.02,
     serviceEndpoint: "/api/analyze",
     agentId: 3,
   });

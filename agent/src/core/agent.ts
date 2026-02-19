@@ -1,15 +1,22 @@
 import { ethers } from "ethers";
 import express, { Express, Request, Response } from "express";
+import { paymentMiddleware, x402ResourceServer } from "@x402/express";
+import { ExactEvmScheme } from "@x402/evm/exact/server";
+import { HTTPFacilitatorClient } from "@x402/core/server";
 import {
   getProvider,
   getWallet,
   STAKING_VAULT_ADDRESS,
   STAKING_VAULT_ABI,
   MOCK_USDC_ADDRESS,
-  MOCK_USDC_ABI,
   GOAT_CHAIN_ID,
   GOAT_NETWORK,
 } from "./config.js";
+
+const FACILITATOR_URL = process.env.FACILITATOR_URL || "http://localhost:4022";
+
+// Default Mock USDC address for local testing (overridden by env in testnet)
+const USDC_ADDRESS = MOCK_USDC_ADDRESS || "0x0000000000000000000000000000000000000001";
 
 export interface AgentConfig {
   name: string;
@@ -17,7 +24,7 @@ export interface AgentConfig {
   privateKey: string;
   port: number;
   stakeAmount: string; // in ether (BTC) e.g. "0.01"
-  pricePerCall: string; // in USDC units e.g. "10000" = 0.01 USDC
+  priceUsdc: number;   // USDC amount e.g. 0.01
   serviceEndpoint: string; // e.g. "/api/audit"
   agentId?: number;
 }
@@ -59,14 +66,14 @@ export class BitAgent {
       address: this.wallet.address,
       port: this.config.port,
       stakeAmount: this.config.stakeAmount,
-      pricePerCall: this.config.pricePerCall,
+      priceUsdc: this.config.priceUsdc,
       earnings: this.earnings.toString(),
       requestCount: this.requestCount,
     };
   }
 
   /**
-   * Boot sequence: stake BTC, then start HTTP server.
+   * Boot sequence: stake BTC, then start HTTP server with x402 middleware.
    */
   async boot(handler: ServiceHandler): Promise<void> {
     console.log(`[${this.config.name}] Booting...`);
@@ -86,14 +93,15 @@ export class BitAgent {
     // Set agent ID from config or use wallet-derived ID
     this.agentId = this.config.agentId || parseInt(this.wallet.address.slice(-4), 16);
 
-    // Set up HTTP endpoints
+    // Set up endpoints with x402 payment middleware
     this.setupEndpoints(handler);
 
     // Start server
     this.app.listen(this.config.port, () => {
       console.log(`[${this.config.name}] Listening on port ${this.config.port}`);
       console.log(`[${this.config.name}] Service: ${this.config.serviceEndpoint}`);
-      console.log(`[${this.config.name}] Price: ${this.config.pricePerCall} USDC per call`);
+      console.log(`[${this.config.name}] Price: ${this.config.priceUsdc} USDC`);
+      console.log(`[${this.config.name}] Facilitator: ${FACILITATOR_URL}`);
     });
   }
 
@@ -102,7 +110,6 @@ export class BitAgent {
     const stakeWei = ethers.parseEther(this.config.stakeAmount);
 
     try {
-      // Check if already staked
       const info = await vault.getStakeInfo(this.agentId || 0);
       if (info[4]) { // active
         console.log(`[${this.config.name}] Already staked: ${ethers.formatEther(info[0])} BTC`);
@@ -119,12 +126,12 @@ export class BitAgent {
   }
 
   private setupEndpoints(handler: ServiceHandler): void {
-    // Health check
+    // Health check (unprotected)
     this.app.get("/health", (_req, res) => {
       res.json({ status: "ok", agent: this.stats });
     });
 
-    // Agent info (for client discovery)
+    // Agent info for client discovery (unprotected)
     this.app.get("/info", (_req, res) => {
       res.json({
         agentId: this.agentId,
@@ -132,44 +139,59 @@ export class BitAgent {
         description: this.config.description,
         wallet: this.wallet.address,
         service: this.config.serviceEndpoint,
-        price: this.config.pricePerCall,
+        price: `$${this.config.priceUsdc}`,
         network: GOAT_NETWORK,
         stakeAmount: this.config.stakeAmount,
       });
     });
 
-    // x402-style payment gate: return 402 if no payment header
-    this.app.post(this.config.serviceEndpoint, async (req: Request, res: Response) => {
-      // Check for x402 payment signature
-      const paymentSig = req.headers["payment-signature"] || req.headers["x-payment"];
+    // x402 payment middleware -- protects service endpoints
+    const facilitatorClient = new HTTPFacilitatorClient({
+      url: FACILITATOR_URL,
+    });
 
-      if (!paymentSig) {
-        // Return 402 with payment requirements
-        const paymentRequired = {
-          x402Version: 2,
-          error: "Payment required",
-          accepts: [{
-            scheme: "exact",
-            network: GOAT_NETWORK,
-            amount: this.config.pricePerCall,
-            asset: MOCK_USDC_ADDRESS,
-            payTo: this.wallet.address,
-            maxTimeoutSeconds: 300,
-          }],
-          resource: {
-            url: `http://localhost:${this.config.port}${this.config.serviceEndpoint}`,
-            description: this.config.description,
+    const evmScheme = new ExactEvmScheme();
+
+    const resourceServer = new x402ResourceServer(facilitatorClient)
+      .register(GOAT_NETWORK as `${string}:${string}`, evmScheme);
+
+    // Use AssetAmount format to bypass default network asset lookup
+    // Mock USDC has 6 decimals
+    const usdcAmount = Math.round(this.config.priceUsdc * 1e6).toString();
+
+    const method = this.config.serviceEndpoint.startsWith("/")
+      ? `POST ${this.config.serviceEndpoint}`
+      : `POST /${this.config.serviceEndpoint}`;
+
+    const routes = {
+      [method]: {
+        accepts: {
+          scheme: "exact" as const,
+          network: GOAT_NETWORK as `${string}:${string}`,
+          payTo: this.wallet.address,
+          maxTimeoutSeconds: 300,
+          price: {
+            amount: usdcAmount,
+            asset: USDC_ADDRESS,
+            extra: {
+              assetTransferMethod: "eip3009",
+              name: "MockUSDC",
+              version: "1",
+            },
           },
-        };
+        },
+        description: this.config.description,
+        mimeType: "application/json",
+      },
+    };
 
-        res.status(402).json(paymentRequired);
-        return;
-      }
+    this.app.use(paymentMiddleware(routes, resourceServer));
 
-      // Payment provided -- execute service
+    // Service endpoint -- x402 middleware handles payment gate
+    this.app.post(this.config.serviceEndpoint, async (req: Request, res: Response) => {
       this.requestCount++;
-      this.earnings += BigInt(this.config.pricePerCall);
-      console.log(`[${this.config.name}] Request #${this.requestCount} - Payment received`);
+      this.earnings += BigInt(usdcAmount);
+      console.log(`[${this.config.name}] Request #${this.requestCount} - Payment verified`);
 
       try {
         await handler(req, res);

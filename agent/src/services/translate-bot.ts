@@ -12,7 +12,7 @@ export async function startTranslateBot() {
     privateKey: process.env.AGENT_TRANSLATOR_KEY || "0x" + "b".repeat(64),
     port: parseInt(process.env.TRANSLATOR_PORT || "3002"),
     stakeAmount: process.env.TRANSLATOR_STAKE || "0.003",
-    pricePerCall: "5000", // 0.005 USDC
+    priceUsdc: 0.005,
     serviceEndpoint: "/api/translate",
     agentId: 2,
   });

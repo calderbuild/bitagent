@@ -18,7 +18,7 @@ export async function startCodeAuditor() {
     privateKey: process.env.AGENT_AUDITOR_KEY || "0x" + "a".repeat(64),
     port: parseInt(process.env.AUDITOR_PORT || "3001"),
     stakeAmount: process.env.AUDITOR_STAKE || "0.005",
-    pricePerCall: "10000", // 0.01 USDC
+    priceUsdc: 0.01,
     serviceEndpoint: "/api/audit",
     agentId: 1,
   });

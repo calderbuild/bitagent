@@ -1,4 +1,9 @@
 import { ethers } from "ethers";
+import { privateKeyToAccount } from "viem/accounts";
+import { x402Client } from "@x402/core/client";
+import { ExactEvmScheme } from "@x402/evm/exact/client";
+import { wrapFetchWithPayment } from "@x402/fetch";
+import { toClientEvmSigner } from "@x402/evm";
 import {
   getProvider,
   getWallet,
@@ -8,8 +13,12 @@ import {
   MOCK_USDC_ABI,
   REPUTATION_REGISTRY_ADDRESS,
   REPUTATION_REGISTRY_ABI,
+  GOAT_CHAIN_ID,
+  GOAT_NETWORK,
 } from "../core/config.js";
 import { calculateTrustScore, TrustInput } from "../trust/score.js";
+
+const GOAT_NETWORK_CAIP = `eip155:${GOAT_CHAIN_ID}` as `${string}:${string}`;
 
 interface AgentInfo {
   agentId: number;
@@ -33,13 +42,24 @@ const AGENT_ENDPOINTS = [
 ];
 
 /**
- * Client Agent: discovers agents, evaluates trust, pays for services.
+ * Client Agent: discovers agents, evaluates trust, pays for services via x402.
  */
 export class ClientAgent {
   private wallet: ethers.Wallet;
+  private paidFetch: typeof globalThis.fetch;
 
   constructor(privateKey: string) {
     this.wallet = getWallet(privateKey);
+
+    // Set up x402 client with EVM signer for automatic payment handling
+    const account = privateKeyToAccount(privateKey as `0x${string}`);
+    const signer = toClientEvmSigner(account);
+    const evmScheme = new ExactEvmScheme(signer);
+
+    const client = new x402Client()
+      .register(GOAT_NETWORK_CAIP, evmScheme);
+
+    this.paidFetch = wrapFetchWithPayment(globalThis.fetch, client);
   }
 
   /**
@@ -91,52 +111,45 @@ export class ClientAgent {
   }
 
   /**
-   * Call an agent's service with x402 payment flow.
+   * Call an agent's service with x402 automatic payment.
+   * The paidFetch wrapper handles 402 -> sign -> retry automatically.
    */
   async callService(agent: AgentInfo, body: Record<string, any>): Promise<any> {
     const url = `${agent.endpoint}${agent.service}`;
+    console.log(`[Client] Calling ${agent.name} at ${url} via x402...`);
 
-    // Step 1: Initial request (will get 402)
-    console.log(`[Client] Calling ${agent.name} at ${url}...`);
-    const initialResp = await fetch(url, {
+    const resp = await this.paidFetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     });
 
-    if (initialResp.status === 402) {
-      const paymentReq = await initialResp.json();
-      console.log(`[Client] Received 402 - Payment required: ${paymentReq.accepts[0].amount} USDC`);
-
-      // Step 2: Sign payment and retry
-      // For demo: include payment header to bypass 402
-      const paymentResp = await fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "payment-signature": "demo-payment-" + Date.now(),
-          "x-payment": JSON.stringify({
-            scheme: "exact",
-            network: paymentReq.accepts[0].network,
-            amount: paymentReq.accepts[0].amount,
-            payer: this.wallet.address,
-          }),
-        },
-        body: JSON.stringify(body),
-      });
-
-      if (!paymentResp.ok) {
-        throw new Error(`Service returned ${paymentResp.status}`);
-      }
-
-      return paymentResp.json();
+    if (!resp.ok) {
+      throw new Error(`Service returned ${resp.status}: ${await resp.text()}`);
     }
 
-    // Not a 402 response -- return directly
-    if (!initialResp.ok) {
-      throw new Error(`Service returned ${initialResp.status}`);
+    return resp.json();
+  }
+
+  /**
+   * Ensure client has Mock USDC balance for payments.
+   */
+  async ensureUSDCBalance(minAmount: bigint = 1000000n): Promise<void> {
+    if (!MOCK_USDC_ADDRESS) {
+      console.log("[Client] Mock USDC not configured");
+      return;
     }
-    return initialResp.json();
+
+    const usdc = new ethers.Contract(MOCK_USDC_ADDRESS, MOCK_USDC_ABI, this.wallet);
+    const balance = await usdc.balanceOf(this.wallet.address);
+    console.log(`[Client] USDC balance: ${balance.toString()}`);
+
+    if (balance < minAmount) {
+      console.log(`[Client] Minting USDC...`);
+      const tx = await usdc.mint(this.wallet.address, 1000000000n); // 1000 USDC
+      await tx.wait();
+      console.log(`[Client] Minted 1000 USDC`);
+    }
   }
 
   /**
@@ -176,6 +189,9 @@ async function runDemo() {
 
   console.log("=== BitAgent Client Demo ===\n");
 
+  // Ensure client has USDC for payments
+  await client.ensureUSDCBalance();
+
   // 1. Discover agents
   console.log("Step 1: Discovering agents...");
   const agents = await client.discoverAgents();
@@ -193,7 +209,7 @@ async function runDemo() {
   const auditor = agents.find(a => a.service === "/api/audit");
   if (auditor) {
     console.log(`\nStep 2: Selected ${auditor.name} (Trust: ${auditor.trustScore})`);
-    console.log("Step 3: Calling audit service...");
+    console.log("Step 3: Calling audit service via x402...");
 
     const result = await client.callService(auditor, {
       code: `// SPDX-License-Identifier: MIT
@@ -219,7 +235,7 @@ contract Simple {
   // 3. Call translator
   const translator = agents.find(a => a.service === "/api/translate");
   if (translator) {
-    console.log(`\nStep 4: Calling ${translator.name}...`);
+    console.log(`\nStep 4: Calling ${translator.name} via x402...`);
     const result = await client.callService(translator, {
       text: "Bitcoin-backed AI agents solve the trust cold-start problem in agent economies.",
       direction: "en-zh",
