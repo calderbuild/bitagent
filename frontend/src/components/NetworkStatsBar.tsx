@@ -1,4 +1,4 @@
-import { Activity, Blocks, Bitcoin } from "lucide-react";
+import { Blocks, Bitcoin } from "lucide-react";
 import type { NetworkStats } from "../types";
 
 interface Props {

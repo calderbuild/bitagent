@@ -439,30 +439,30 @@ function stake(uint256 agentId) external payable {
 ### Phase 1: 合约层 (Day 1-7)
 
 **1.1 部署 Mock USDC（含 EIP-3009）**
-- [ ] 编写 MockUSDC.sol -- ERC20 + EIP-3009 `transferWithAuthorization` + EIP-712
-- [ ] 参考 Circle FiatTokenV2 实现 `transferWithAuthorization`
+- [x] 编写 MockUSDC.sol -- ERC20 + EIP-3009 `transferWithAuthorization` + EIP-712
+- [x] 参考 Circle FiatTokenV2 实现 `transferWithAuthorization`
 - [ ] 部署到 GOAT Testnet3 并 mint 测试代币
 
 **1.2 部署 ERC-8004 注册表**
 - [ ] Fork erc-8004-contracts 仓库
-- [ ] 添加 GOAT Testnet3 网络配置到 hardhat.config.ts
-- [ ] 编写简化部署脚本（UUPS 代理，跳过 vanity）
+- [x] 添加 GOAT Testnet3 网络配置到 hardhat.config.ts
+- [x] 编写简化部署脚本（UUPS 代理，跳过 vanity）
 - [ ] 部署 IdentityRegistryUpgradeable + ReputationRegistryUpgradeable
 - [ ] 验证: register() + giveFeedback() + getSummary()
 
 **1.3 部署 StakingVault**
-- [ ] 编写 StakingVault.sol（BTC payable 质押 + slash + unstake）
+- [x] 编写 StakingVault.sol（BTC payable 质押 + slash + unstake）
 - [ ] 部署到 GOAT Testnet3
-- [ ] 验证: stake() + effectiveStake() + slash()
+- [x] 验证: stake() + effectiveStake() + slash()
 
 **1.4 搭建 x402 Facilitator**
-- [ ] 创建 inline facilitator（使用 @x402/core + @x402/evm）
-- [ ] 注册 GOAT Network (eip155:48816) 支持
-- [ ] 注册自定义 money parser（映射 Mock USDC 地址 + EIP-712 domain）
-- [ ] 验证: verify() + settle() 端到端
+- [x] 创建 inline facilitator（使用 @x402/core + @x402/evm）
+- [x] 注册 GOAT Network (eip155:48816) 支持
+- [x] 注册自定义 money parser（映射 Mock USDC 地址 + EIP-712 domain）
+- [x] 验证: verify() + settle() 端到端
 
 **1.5 端到端集成测试**
-- [ ] 脚本完成: 质押 BTC -> 注册 ERC-8004 身份 -> x402 支付 -> 查信誉 -> slash
+- [x] 脚本完成: 质押 BTC -> 注册 ERC-8004 身份 -> x402 支付 -> 查信誉 -> slash
 
 **验收标准**: 一个 Hardhat 脚本跑通完整流程，交易在 GOAT Explorer 可查
 
@@ -503,8 +503,8 @@ function stake(uint256 agentId) external payable {
 
 ### Phase 4: 文档 + 提交 (Day 26-28)
 
-- [ ] README (中英双语): 项目简介、架构图、快速开始、Demo 说明
-- [ ] 代码仓库整理 + 开源许可
+- [x] README (中英双语): 项目简介、架构图、快速开始、Demo 说明
+- [x] 代码仓库整理 + 开源许可
 - [ ] 提交参赛材料到 Google Forms
 
 ## 风险分析（已更新）
