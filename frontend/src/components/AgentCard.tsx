@@ -64,7 +64,7 @@ export function AgentCard({ agent }: Props) {
         <div className="agent-card__stat">
           <span className="agent-card__stat-label">BTC Stake</span>
           <span className="agent-card__stat-value agent-card__stat-value--btc">
-            {agent.btcStake.toFixed(3)}
+            {agent.btcStake.toFixed(6)}
           </span>
         </div>
         <div className="agent-card__stat">

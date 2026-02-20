@@ -16,7 +16,7 @@ interface SlashLogEntry {
 
 export function SlashDemo({ agents, onSlash }: Props) {
   const [targetId, setTargetId] = useState(agents[0]?.agentId || 1);
-  const [amount, setAmount] = useState("0.001");
+  const [amount, setAmount] = useState("0.000001");
   const [log, setLog] = useState<SlashLogEntry[]>([]);
   const [showFlash, setShowFlash] = useState(false);
   const [slashing, setSlashing] = useState(false);
@@ -70,7 +70,7 @@ export function SlashDemo({ agents, onSlash }: Props) {
                 {target?.name || "No agent selected"}
               </div>
               <div className="slash-demo__target-id">
-                Agent #{targetId} &middot; Stake: {target?.btcStake.toFixed(3) || "0"} BTC &middot; Trust: {target?.trustScore.toFixed(1) || "0"}
+                Agent #{targetId} &middot; Stake: {target?.btcStake.toFixed(6) || "0"} BTC &middot; Trust: {target?.trustScore.toFixed(1) || "0"}
               </div>
             </div>
             <div className="slash-demo__controls">

@@ -33,7 +33,7 @@ export function TrustLeaderboard({ agents }: Props) {
             </span>
             <div className="leaderboard__agent">
               <span className="leaderboard__agent-name">{agent.name}</span>
-              <span className="leaderboard__agent-wallet">{agent.wallet}</span>
+              <span className="leaderboard__agent-wallet">{agent.wallet.slice(0, 6)}...{agent.wallet.slice(-4)}</span>
             </div>
             <div>
               <div className="stake-bar">
@@ -42,7 +42,7 @@ export function TrustLeaderboard({ agents }: Props) {
                   style={{ width: `${(agent.btcStake / maxStake) * 100}%` }}
                 />
               </div>
-              <div className="stake-bar__label">{agent.btcStake.toFixed(3)} BTC</div>
+              <div className="stake-bar__label">{agent.btcStake.toFixed(6)} BTC</div>
             </div>
             <span className="leaderboard__score" style={{ color: tierColor(agent.tier) }}>
               {agent.trustScore.toFixed(1)}

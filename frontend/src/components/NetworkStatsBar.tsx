@@ -22,7 +22,7 @@ export function NetworkStatsBar({ stats }: Props) {
         <span className="stat-item__label">BTC Staked</span>
         <span className="stat-item__value stat-item__value--btc">
           <Bitcoin size={13} style={{ verticalAlign: "middle", marginRight: 4 }} />
-          {stats.totalBtcStaked.toFixed(3)}
+          {stats.totalBtcStaked.toFixed(6)}
         </span>
       </div>
 

@@ -8,6 +8,8 @@ import {
   getWallet,
   STAKING_VAULT_ADDRESS,
   STAKING_VAULT_ABI,
+  IDENTITY_REGISTRY_ADDRESS,
+  IDENTITY_REGISTRY_ABI,
   MOCK_USDC_ADDRESS,
   GOAT_CHAIN_ID,
   GOAT_NETWORK,
@@ -48,6 +50,13 @@ export class BitAgent {
     this.config = config;
     this.wallet = getWallet(config.privateKey);
     this.app = express();
+    this.app.use((_req, res, next) => {
+      res.setHeader("Access-Control-Allow-Origin", "*");
+      res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+      res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Payment, X-Payment-Response");
+      if (_req.method === "OPTIONS") { res.sendStatus(204); return; }
+      next();
+    });
     this.app.use(express.json({ limit: "1mb" }));
   }
 
@@ -83,15 +92,24 @@ export class BitAgent {
     const balance = await getProvider().getBalance(this.wallet.address);
     console.log(`[${this.config.name}] BTC Balance: ${ethers.formatEther(balance)}`);
 
+    // Register ERC-8004 identity
+    if (IDENTITY_REGISTRY_ADDRESS) {
+      await this.registerIdentity();
+    } else {
+      console.log(`[${this.config.name}] IdentityRegistry not configured, skipping registration`);
+      this.agentId = this.config.agentId || parseInt(this.wallet.address.slice(-4), 16);
+    }
+
     // Stake BTC if vault address is configured
     if (STAKING_VAULT_ADDRESS) {
-      await this.stakeBTC();
+      try {
+        await this.stakeBTC();
+      } catch (error: any) {
+        console.log(`[${this.config.name}] Staking failed (non-fatal): ${error.message?.slice(0, 80)}`);
+      }
     } else {
       console.log(`[${this.config.name}] StakingVault not configured, skipping staking`);
     }
-
-    // Set agent ID from config or use wallet-derived ID
-    this.agentId = this.config.agentId || parseInt(this.wallet.address.slice(-4), 16);
 
     // Set up endpoints with x402 payment middleware
     this.setupEndpoints(handler);
@@ -103,6 +121,44 @@ export class BitAgent {
       console.log(`[${this.config.name}] Price: ${this.config.priceUsdc} USDC`);
       console.log(`[${this.config.name}] Facilitator: ${FACILITATOR_URL}`);
     });
+  }
+
+  private async registerIdentity(): Promise<void> {
+    const identity = new ethers.Contract(IDENTITY_REGISTRY_ADDRESS, IDENTITY_REGISTRY_ABI, this.wallet);
+
+    // Check if this specific agent name is already registered by scanning token URIs
+    try {
+      for (let i = 0; i <= 20; i++) {
+        try {
+          await identity.ownerOf(i); // will throw if token doesn't exist
+          const uri = await identity.tokenURI(i);
+          if (uri.includes(this.config.name)) {
+            this.agentId = i;
+            console.log(`[${this.config.name}] Already registered as Agent #${i}`);
+            return;
+          }
+        } catch { break; } // no more tokens
+      }
+    } catch { /* scan failed, register fresh */ }
+
+    // Register new identity
+    const agentURI = JSON.stringify({
+      name: this.config.name,
+      description: this.config.description,
+      service: this.config.serviceEndpoint,
+      price: this.config.priceUsdc,
+    });
+
+    console.log(`[${this.config.name}] Registering ERC-8004 identity...`);
+    const tx = await identity.getFunction("register(string)").send(agentURI);
+    const receipt = await tx.wait();
+
+    // Extract agentId from Transfer event
+    const transferLog = receipt?.logs.find(
+      (log: any) => log.topics[0] === ethers.id("Transfer(address,address,uint256)")
+    );
+    this.agentId = transferLog ? Number(BigInt(transferLog.topics[3])) : 0;
+    console.log(`[${this.config.name}] Registered! Agent ID: ${this.agentId}, TX: ${tx.hash}`);
   }
 
   private async stakeBTC(): Promise<void> {
