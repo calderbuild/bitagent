@@ -61,9 +61,10 @@ BitAgent 引入经济博弈层：
 
 | Agent | 服务 | 价格 | BTC 质押 |
 |-------|------|------|----------|
-| CodeAuditor | 智能合约安全审计 | 0.01 USDC | 0.005 BTC |
-| TranslateBot | 中英翻译 | 0.005 USDC | 0.003 BTC |
-| DataAnalyst | 数据分析 | 0.02 USDC | 0.008 BTC |
+| CodeAuditor | 智能合约安全审计 | 0.01 USDC | 0.000005 BTC |
+| TranslateBot | 中英翻译 | 0.005 USDC | 0.000005 BTC |
+| DataAnalyst | 数据分析 | 0.02 USDC | 0.000008 BTC |
+| Orchestrator | 元 Agent（路由任务到子 Agent） | 0.03 USDC | 0.000005 BTC |
 
 ## 技术栈
 
@@ -93,65 +94,51 @@ cd bitagent
 npm install
 ```
 
-### 编译合约
+### 一键启动（推荐）
 
 ```bash
-npm run build:contracts
+cp .env.example .env
+# 编辑 .env 填入私钥和合约地址
+
+bash scripts/start-all.sh
 ```
 
-### 编译 Agent
+这会按正确顺序启动所有 6 个服务（Facilitator -> 4 个 Agent -> Frontend），日志输出到 `logs/` 目录。
+
+启动完成后：
+- Dashboard: http://localhost:5173
+- 停止所有服务: `bash scripts/stop-all.sh`
+
+### 运行 Demo
 
 ```bash
-npm run build:agent
+bash scripts/run-demo.sh
 ```
 
-### 运行本地 Demo
+Demo 脚本会：
+1. 检查所有服务健康状态
+2. 显示链上统计数据（区块高度、总质押量）
+3. 展示 Agent 注册表（信任分、BTC 质押、信誉值）
+4. 运行 x402 付费调用 + 链上信誉反馈
 
-本地 Demo 无需 GOAT 测试网连接，在单进程中启动所有组件：
+### 手动启动（分终端）
 
 ```bash
-npm run build:agent
-cd agent && npm run demo:local
+# 终端 1: Facilitator
+cd agent && npx tsx src/facilitator/server.ts
+
+# 终端 2-5: AI Agent 服务
+npx tsx src/services/code-auditor.ts
+npx tsx src/services/translate-bot.ts
+npx tsx src/services/data-analyst.ts
+npx tsx src/services/orchestrator.ts
+
+# 终端 6: Frontend
+cd frontend && npx vite --port 5173
+
+# 终端 7: Client Demo
+cd agent && npx tsx src/client/index.ts
 ```
-
-输出示例：
-
-```
-BitAgent -- BTC-Secured AI Service Network
-Local E2E Demo
-
-[1/3] Starting facilitator...
-[Facilitator] Running on port 4022
-
-[2/3] Starting agents...
-[CodeAuditor] Listening on port 3001
-[TranslateBot] Listening on port 3002
-[DataAnalyst] Listening on port 3003
-
-[3/3] Running client demo...
-  Step 1: Discovering agents...
-  [OK] CodeAuditor at http://localhost:3001
-  [OK] TranslateBot at http://localhost:3002
-  [OK] DataAnalyst at http://localhost:3003
-
-  Calling CodeAuditor (code-audit)...
-  [402] Payment required (x402 protocol active)
-  Amount: 10000 | Network: eip155:48816
-
-  Calling TranslateBot (translation)...
-  [402] Payment required (x402 protocol active)
-
-  Calling DataAnalyst (data-analysis)...
-  [402] Payment required (x402 protocol active)
-```
-
-### 启动前端
-
-```bash
-npm run dev:frontend
-```
-
-访问 http://localhost:5173 查看 Dashboard。
 
 ### Testnet 部署（需要 GOAT BTC）
 
@@ -168,54 +155,53 @@ cp .env.example .env
 ```bash
 cd contracts
 npx hardhat run scripts/deploy.ts --network goatTestnet3
+npx hardhat run scripts/deploy-erc8004.ts --network goatTestnet3
 ```
 
-4. 启动各组件：
+4. 一键启动：
 
 ```bash
-# 终端 1: Facilitator
-cd agent && npm run start:facilitator
-
-# 终端 2-4: AI Agent 服务
-npm run start:auditor
-npm run start:translator
-npm run start:analyst
-
-# 终端 5: Client Agent
-npm run start:client
+bash scripts/start-all.sh
 ```
 
 ## 项目结构
 
 ```
 bitagent/
-  contracts/           # Solidity 智能合约
+  scripts/
+    start-all.sh         # 一键启动所有服务
+    stop-all.sh          # 一键停止所有服务
+    run-demo.sh          # 完整 Demo 流程
+  contracts/             # Solidity 智能合约
     contracts/
-      MockUSDC.sol       # ERC20 + EIP-3009 测试稳定币
-      StakingVault.sol   # BTC 质押金库 + slash 机制
+      MockUSDC.sol         # ERC20 + EIP-3009 测试稳定币
+      StakingVault.sol     # BTC 质押金库 + slash 机制
+      IdentityRegistryUpgradeable.sol   # ERC-8004 身份注册（UUPS 代理）
+      ReputationRegistryUpgradeable.sol # ERC-8004 信誉系统（UUPS 代理）
     scripts/
-      deploy.ts          # Hardhat 部署脚本
-  agent/               # TypeScript Agent 运行时
+      deploy.ts            # Hardhat 部署脚本
+      deploy-erc8004.ts    # ERC-8004 代理部署
+  agent/                 # TypeScript Agent 运行时
     src/
       core/
         agent.ts           # BitAgent 运行时核心（x402 + Express）
         config.ts          # 链配置 + 合约 ABI
+        llm.ts             # LLM 客户端（OpenAI 兼容）
       facilitator/
-        server.ts          # 自建 x402 Facilitator（GOAT 支持）
+        server.ts          # 自建 x402 Facilitator + 聚合 API
       trust/
         score.ts           # TrustScore 计算模块
       services/
         code-auditor.ts    # 智能合约审计 Agent
         translate-bot.ts   # 中英翻译 Agent
         data-analyst.ts    # 数据分析 Agent
+        orchestrator.ts    # 元 Agent（LLM 路由 + 子 Agent 调用）
       client/
-        index.ts           # 自主 Client Agent
-      demo/
-        e2e-local.ts       # 本地端到端 Demo
-  frontend/            # React Dashboard
+        index.ts           # x402 Demo 客户端 + 链上反馈
+  frontend/              # React Dashboard
     src/
-      components/        # UI 组件
-      data/              # Mock 数据
+      components/          # UI 组件（AgentCard, SlashDemo, Leaderboard 等）
+      data/                # Mock 数据（API 不可用时降级）
 ```
 
 ## 竞品对比
@@ -288,9 +274,10 @@ BitAgent introduces an economic game-theory layer:
 
 | Agent | Service | Price | BTC Stake |
 |-------|---------|-------|-----------|
-| CodeAuditor | Smart contract security audit | 0.01 USDC | 0.005 BTC |
-| TranslateBot | Chinese-English translation | 0.005 USDC | 0.003 BTC |
-| DataAnalyst | Data analysis | 0.02 USDC | 0.008 BTC |
+| CodeAuditor | Smart contract security audit | 0.01 USDC | 0.000005 BTC |
+| TranslateBot | Chinese-English translation | 0.005 USDC | 0.000005 BTC |
+| DataAnalyst | Data analysis | 0.02 USDC | 0.000008 BTC |
+| Orchestrator | Meta-agent (routes tasks to sub-agents) | 0.03 USDC | 0.000005 BTC |
 
 ## Tech Stack
 
@@ -320,34 +307,51 @@ cd bitagent
 npm install
 ```
 
-### Compile Contracts
+### One-Click Start (Recommended)
 
 ```bash
-npm run build:contracts
+cp .env.example .env
+# Edit .env with your private keys and contract addresses
+
+bash scripts/start-all.sh
 ```
 
-### Build Agent
+This starts all 6 services in the correct order (Facilitator -> 4 Agents -> Frontend), with logs in `logs/`.
+
+Once running:
+- Dashboard: http://localhost:5173
+- Stop all: `bash scripts/stop-all.sh`
+
+### Run Demo
 
 ```bash
-npm run build:agent
+bash scripts/run-demo.sh
 ```
 
-### Run Local Demo
+The demo script will:
+1. Health-check all services
+2. Display on-chain stats (block height, total staked)
+3. Show agent registry (trust scores, BTC stakes, reputation)
+4. Run x402 paid calls + on-chain reputation feedback
 
-The local demo requires no GOAT testnet connection and starts all components in a single process:
+### Manual Start (Separate Terminals)
 
 ```bash
-npm run build:agent
-cd agent && npm run demo:local
+# Terminal 1: Facilitator
+cd agent && npx tsx src/facilitator/server.ts
+
+# Terminals 2-5: AI Agent services
+npx tsx src/services/code-auditor.ts
+npx tsx src/services/translate-bot.ts
+npx tsx src/services/data-analyst.ts
+npx tsx src/services/orchestrator.ts
+
+# Terminal 6: Frontend
+cd frontend && npx vite --port 5173
+
+# Terminal 7: Client Demo
+cd agent && npx tsx src/client/index.ts
 ```
-
-### Start Frontend
-
-```bash
-npm run dev:frontend
-```
-
-Visit http://localhost:5173 to view the Dashboard.
 
 ### Testnet Deployment (requires GOAT BTC)
 
@@ -364,54 +368,53 @@ cp .env.example .env
 ```bash
 cd contracts
 npx hardhat run scripts/deploy.ts --network goatTestnet3
+npx hardhat run scripts/deploy-erc8004.ts --network goatTestnet3
 ```
 
-4. Start each component:
+4. One-click start:
 
 ```bash
-# Terminal 1: Facilitator
-cd agent && npm run start:facilitator
-
-# Terminals 2-4: AI Agent services
-npm run start:auditor
-npm run start:translator
-npm run start:analyst
-
-# Terminal 5: Client Agent
-npm run start:client
+bash scripts/start-all.sh
 ```
 
 ## Project Structure
 
 ```
 bitagent/
-  contracts/           # Solidity smart contracts
+  scripts/
+    start-all.sh         # One-click start all services
+    stop-all.sh          # One-click stop all services
+    run-demo.sh          # Full demo flow
+  contracts/             # Solidity smart contracts
     contracts/
-      MockUSDC.sol       # ERC20 + EIP-3009 test stablecoin
-      StakingVault.sol   # BTC staking vault + slash mechanism
+      MockUSDC.sol         # ERC20 + EIP-3009 test stablecoin
+      StakingVault.sol     # BTC staking vault + slash mechanism
+      IdentityRegistryUpgradeable.sol   # ERC-8004 identity (UUPS proxy)
+      ReputationRegistryUpgradeable.sol # ERC-8004 reputation (UUPS proxy)
     scripts/
-      deploy.ts          # Hardhat deploy script
-  agent/               # TypeScript agent runtime
+      deploy.ts            # Hardhat deploy script
+      deploy-erc8004.ts    # ERC-8004 proxy deployment
+  agent/                 # TypeScript agent runtime
     src/
       core/
         agent.ts           # BitAgent runtime core (x402 + Express)
         config.ts          # Chain config + contract ABIs
+        llm.ts             # LLM client (OpenAI-compatible)
       facilitator/
-        server.ts          # Self-hosted x402 facilitator (GOAT support)
+        server.ts          # Self-hosted x402 facilitator + aggregation APIs
       trust/
         score.ts           # TrustScore computation module
       services/
         code-auditor.ts    # Smart contract audit agent
         translate-bot.ts   # Chinese-English translation agent
         data-analyst.ts    # Data analysis agent
+        orchestrator.ts    # Meta-agent (LLM routing + sub-agent calls)
       client/
-        index.ts           # Autonomous client agent
-      demo/
-        e2e-local.ts       # Local end-to-end demo
-  frontend/            # React dashboard
+        index.ts           # x402 demo client + on-chain feedback
+  frontend/              # React dashboard
     src/
-      components/        # UI components
-      data/              # Mock data
+      components/          # UI components (AgentCard, SlashDemo, Leaderboard, etc.)
+      data/                # Mock data (fallback when API unavailable)
 ```
 
 ## Competitive Comparison

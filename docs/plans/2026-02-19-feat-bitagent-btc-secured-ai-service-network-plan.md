@@ -436,6 +436,12 @@ function stake(uint256 agentId) external payable {
 
 ## 实现阶段
 
+### 最新进展（2026-02-20）
+
+- 已完成并推送：`18b0d03` (`feat: connect frontend to real chain data, add ERC-8004 registration and on-chain slash`)
+- 已验证链上 slash 交易：`0xcd2fa01f...`（CodeAuditor trust 分从 25.2 降到 22.2，并触发排行榜重排）
+- 前端当前采用 **3-8 秒轮询** facilitator API（`/api/agents`、`/api/stats`、`/api/events`），非 WebSocket 模式
+
 ### Phase 1: 合约层 (Day 1-7)
 
 **1.1 部署 Mock USDC（含 EIP-3009）**
@@ -469,34 +475,34 @@ function stake(uint256 agentId) external payable {
 ### Phase 2: Agent Runtime (Day 8-18)
 
 **2.1 Agent 框架核心**
-- [ ] Agent 启动流程: 生成钱包 -> 质押 BTC -> 注册 ERC-8004 -> 启动 HTTP server
-- [ ] Agent 状态持久化 (SQLite): agentId, wallet, stake, earnings
-- [ ] x402 HTTP server: Express + paymentMiddleware + 自建 inline facilitator
-- [ ] TrustScore 计算模块（链上查询 BTC stake + ERC-8004 reputation）
+- [x] Agent 启动流程: 生成钱包 -> 质押 BTC -> 注册 ERC-8004 -> 启动 HTTP server
+- [ ] Agent 状态持久化 (SQLite): agentId, wallet, stake, earnings（当前主要使用链上数据 + 进程内状态）
+- [x] x402 HTTP server: Express + paymentMiddleware + 自建 inline facilitator
+- [x] TrustScore 计算模块（链上查询 BTC stake + ERC-8004 reputation）
 
 **2.2 三个 Demo AI 服务**
-- [ ] CodeAuditor: 接收 Solidity 代码 -> 调 Claude API -> 返回审计报告
-- [ ] TranslateBot: 接收文本 -> 调 Claude API -> 返回翻译
-- [ ] DataAnalyst: 接收 CSV/JSON -> 调 Claude API -> 返回分析洞察
+- [x] CodeAuditor: 接收 Solidity 代码 -> 调 LLM API -> 返回审计报告
+- [x] TranslateBot: 接收文本 -> 调 LLM API -> 返回翻译
+- [x] DataAnalyst: 接收 CSV/JSON -> 调 LLM API -> 返回分析洞察
 
 **2.3 Client Agent**
-- [ ] 查询 ERC-8004 获取已注册 Agent 列表
-- [ ] 查询 StakingVault 获取每个 Agent 的 BTC 质押
-- [ ] 计算 TrustScore 并排序
-- [ ] 使用 @x402/fetch wrapFetchWithPayment 自动处理付费
-- [ ] 调用后提交 ERC-8004 反馈
+- [x] 查询 ERC-8004 获取已注册 Agent 列表
+- [x] 查询 StakingVault 获取每个 Agent 的 BTC 质押
+- [x] 计算 TrustScore 并排序
+- [x] 使用 @x402/fetch wrapFetchWithPayment 自动处理付费
+- [x] 调用后提交 ERC-8004 反馈
 
 **验收标准**: 3 个 Agent 各自运行在独立端口 + Client Agent 自主选择并完成调用
 
 ### Phase 3: 前端 + Demo (Day 19-25)
 
-- [ ] Web 前端面板 (React + Vite)
+- [x] Web 前端面板 (React + Vite)
   - Agent Dashboard: 列出所有 Agent + BTC stake + TrustScore + 状态
-  - 实时交易流: WebSocket 推送 x402 支付事件
+  - 实时交易流: 轮询 `/api/events` 展示 x402/质押/slash 事件
   - 信任排行榜: 按 TrustScore 排序
-  - Slash 演示: 按钮触发 slash，实时观察 TrustScore 变化
+  - Slash 演示: 按钮触发链上 `StakingVault.slash()`，实时观察 TrustScore 变化
 - [ ] 编写 5 分钟 Demo 脚本
-- [ ] 端到端测试
+- [x] 端到端测试
 - [ ] 录制备用 Demo 视频
 
 **验收标准**: Demo 无人工干预流畅运行，链上数据在 GOAT Explorer 可验证
@@ -505,7 +511,7 @@ function stake(uint256 agentId) external payable {
 
 - [x] README (中英双语): 项目简介、架构图、快速开始、Demo 说明
 - [x] 代码仓库整理 + 开源许可
-- [ ] 提交参赛材料到 Google Forms
+- [ ] 提交参赛材料到 Google Forms（待人工确认提交）
 
 ## 风险分析（已更新）
 

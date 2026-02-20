@@ -4,6 +4,7 @@ build/
 .env
 .env.local
 *.log
+logs/
 coverage/
 cache/
 artifacts/
