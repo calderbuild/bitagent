@@ -1,249 +1,339 @@
 import { ethers } from "ethers";
+import { webcrypto } from "node:crypto";
 import { privateKeyToAccount } from "viem/accounts";
 import { x402Client } from "@x402/core/client";
 import { ExactEvmScheme } from "@x402/evm/exact/client";
 import { wrapFetchWithPayment } from "@x402/fetch";
 import { toClientEvmSigner } from "@x402/evm";
 import {
-  getProvider,
   getWallet,
-  STAKING_VAULT_ADDRESS,
-  STAKING_VAULT_ABI,
+  GOAT_CHAIN_ID,
   MOCK_USDC_ADDRESS,
   MOCK_USDC_ABI,
   REPUTATION_REGISTRY_ADDRESS,
   REPUTATION_REGISTRY_ABI,
-  GOAT_CHAIN_ID,
-  GOAT_NETWORK,
 } from "../core/config.js";
-import { calculateTrustScore, TrustInput } from "../trust/score.js";
 
 const GOAT_NETWORK_CAIP = `eip155:${GOAT_CHAIN_ID}` as `${string}:${string}`;
+const FACILITATOR_BASE = "http://localhost:4022";
+const ONE_USDC = 1_000_000n; // 6 decimals
+const FEEDBACK_SCORE = 80n;
+
+if (!globalThis.crypto) {
+  Object.defineProperty(globalThis, "crypto", {
+    value: webcrypto,
+    configurable: true,
+  });
+}
+
+type ServiceType = "audit" | "translate" | "analyze";
 
 interface AgentInfo {
   agentId: number;
   name: string;
-  description: string;
-  wallet: string;
   service: string;
+  wallet: string;
   price: string;
-  network: string;
-  stakeAmount: string;
-  endpoint: string;
-  trustScore?: number;
-  tier?: string;
 }
 
-// Known agent endpoints (in production, discovered via ERC-8004)
-const AGENT_ENDPOINTS = [
-  "http://localhost:3001",
-  "http://localhost:3002",
-  "http://localhost:3003",
+interface ServiceConfig {
+  label: string;
+  serviceType: ServiceType;
+  infoUrl: string;
+  endpoint: string;
+  buildBody: () => Record<string, unknown>;
+}
+
+interface EventPayload {
+  type: "feedback";
+  agentName: string;
+  agentId: number;
+  amount: string;
+  currency: string;
+  clientAddress: string;
+  status: "confirmed" | "pending";
+  txHash?: string;
+}
+
+const SERVICE_CONFIGS: ServiceConfig[] = [
+  {
+    label: "CodeAuditor",
+    serviceType: "audit",
+    infoUrl: "http://localhost:3001/info",
+    endpoint: "http://localhost:3001/api/audit",
+    buildBody: () => ({
+      code: `// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.24;
+
+contract Vault {
+    mapping(address => uint256) public balances;
+
+    function deposit() external payable {
+        balances[msg.sender] += msg.value;
+    }
+
+    function withdraw(uint256 amount) external {
+        require(balances[msg.sender] >= amount, "insufficient");
+        (bool ok, ) = msg.sender.call{value: amount}("");
+        require(ok, "send failed");
+        balances[msg.sender] -= amount;
+    }
+}`,
+    }),
+  },
+  {
+    label: "TranslateBot",
+    serviceType: "translate",
+    infoUrl: "http://localhost:3002/info",
+    endpoint: "http://localhost:3002/api/translate",
+    buildBody: () => ({
+      text: "Bitcoin-backed AI agents provide crypto-economic trust from day one.",
+      from: "en",
+      to: "zh",
+      direction: "en-zh",
+    }),
+  },
+  {
+    label: "DataAnalyst",
+    serviceType: "analyze",
+    infoUrl: "http://localhost:3003/info",
+    endpoint: "http://localhost:3003/api/analyze",
+    buildBody: () => ({
+      data: [
+        { day: "Mon", calls: 42, successRate: 0.97 },
+        { day: "Tue", calls: 57, successRate: 0.95 },
+        { day: "Wed", calls: 61, successRate: 0.98 },
+      ],
+      question: "Which day had the best performance and why?",
+    }),
+  },
 ];
 
-/**
- * Client Agent: discovers agents, evaluates trust, pays for services via x402.
- */
-export class ClientAgent {
+function formatMs(ms: number): string {
+  return `${ms}ms`;
+}
+
+function ensureStringError(error: unknown): string {
+  if (error instanceof Error) return error.message;
+  return String(error);
+}
+
+async function timedStep<T>(label: string, fn: () => Promise<T>): Promise<T> {
+  const startedAt = Date.now();
+  console.log(`\n[Client] ▶ ${label}`);
+  try {
+    const result = await fn();
+    console.log(`[Client] ✓ ${label} (${formatMs(Date.now() - startedAt)})`);
+    return result;
+  } catch (error) {
+    console.error(`[Client] ✗ ${label} (${formatMs(Date.now() - startedAt)}): ${ensureStringError(error)}`);
+    throw error;
+  }
+}
+
+class DemoClient {
   private wallet: ethers.Wallet;
   private paidFetch: typeof globalThis.fetch;
 
   constructor(privateKey: string) {
     this.wallet = getWallet(privateKey);
-
-    // Set up x402 client with EVM signer for automatic payment handling
     const account = privateKeyToAccount(privateKey as `0x${string}`);
     const signer = toClientEvmSigner(account);
     const evmScheme = new ExactEvmScheme(signer);
-
-    const client = new x402Client()
-      .register(GOAT_NETWORK_CAIP, evmScheme);
-
+    const client = new x402Client().register(GOAT_NETWORK_CAIP, evmScheme);
     this.paidFetch = wrapFetchWithPayment(globalThis.fetch, client);
   }
 
-  /**
-   * Discover all available agents and their trust scores.
-   */
-  async discoverAgents(): Promise<AgentInfo[]> {
-    const agents: AgentInfo[] = [];
-
-    for (const endpoint of AGENT_ENDPOINTS) {
-      try {
-        const resp = await fetch(`${endpoint}/info`);
-        if (!resp.ok) continue;
-        const info = await resp.json() as any;
-        info.endpoint = endpoint;
-
-        // Query on-chain stake
-        let btcStake = 0n;
-        if (STAKING_VAULT_ADDRESS) {
-          const vault = new ethers.Contract(
-            STAKING_VAULT_ADDRESS, STAKING_VAULT_ABI, getProvider()
-          );
-          try {
-            btcStake = await vault.effectiveStake(info.agentId);
-          } catch { /* not staked */ }
-        }
-
-        // Calculate trust score
-        const trustInput: TrustInput = {
-          btcStake,
-          reputationScore: 50, // default for new agents
-          feedbackCount: 0,
-          slashHistory: 0,
-          uptimeDays: 1,
-        };
-
-        const trust = calculateTrustScore(trustInput);
-        info.trustScore = trust.total;
-        info.tier = trust.tier;
-
-        agents.push(info);
-      } catch {
-        // Agent not reachable
-      }
-    }
-
-    // Sort by trust score (highest first)
-    agents.sort((a, b) => (b.trustScore || 0) - (a.trustScore || 0));
-    return agents;
+  get address() {
+    return this.wallet.address;
   }
 
-  /**
-   * Call an agent's service with x402 automatic payment.
-   * The paidFetch wrapper handles 402 -> sign -> retry automatically.
-   */
-  async callService(agent: AgentInfo, body: Record<string, any>): Promise<any> {
-    const url = `${agent.endpoint}${agent.service}`;
-    console.log(`[Client] Calling ${agent.name} at ${url} via x402...`);
-
-    const resp = await this.paidFetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
-
-    if (!resp.ok) {
-      throw new Error(`Service returned ${resp.status}: ${await resp.text()}`);
+  async logBalances(): Promise<void> {
+    if (!this.wallet.provider) {
+      throw new Error("Wallet provider is not available");
     }
-
-    return resp.json();
+    const btc = await this.wallet.provider.getBalance(this.wallet.address);
+    const btcFmt = ethers.formatEther(btc);
+    console.log(`[Client] Wallet: ${this.wallet.address}`);
+    console.log(`[Client] BTC Balance: ${btcFmt}`);
   }
 
-  /**
-   * Ensure client has Mock USDC balance for payments.
-   */
-  async ensureUSDCBalance(minAmount: bigint = 1000000n): Promise<void> {
+  async ensureUsdc(minBalance: bigint = ONE_USDC): Promise<void> {
     if (!MOCK_USDC_ADDRESS) {
-      console.log("[Client] Mock USDC not configured");
+      throw new Error("MOCK_USDC_ADDRESS is required");
+    }
+
+    const usdc = new ethers.Contract(MOCK_USDC_ADDRESS, MOCK_USDC_ABI, this.wallet);
+    const balance = await usdc.balanceOf(this.wallet.address) as bigint;
+    console.log(`[Client] USDC Balance: ${balance} (${Number(balance) / 1e6} USDC)`);
+
+    if (balance >= minBalance) return;
+
+    const mintAmount = 10_000_000n; // 10 USDC
+    console.log(`[Client] Minting ${Number(mintAmount) / 1e6} MockUSDC to self...`);
+    const tx = await usdc.mint(this.wallet.address, mintAmount);
+    const receipt = await tx.wait();
+    console.log(`[Client] Mint tx: ${receipt?.hash || tx.hash}`);
+  }
+
+  async ensureFacilitatorAllowance(minAllowance: bigint = ONE_USDC): Promise<void> {
+    if (!MOCK_USDC_ADDRESS) {
+      throw new Error("MOCK_USDC_ADDRESS is required");
+    }
+
+    const healthResp = await fetch(`${FACILITATOR_BASE}/health`);
+    if (!healthResp.ok) {
+      throw new Error(`Facilitator health check failed: ${healthResp.status}`);
+    }
+    const health = await healthResp.json() as { facilitator?: string };
+    const facilitatorAddress = health.facilitator;
+
+    if (!facilitatorAddress) {
+      console.log("[Client] Facilitator address missing in /health response, skipping approve");
       return;
     }
 
     const usdc = new ethers.Contract(MOCK_USDC_ADDRESS, MOCK_USDC_ABI, this.wallet);
-    const balance = await usdc.balanceOf(this.wallet.address);
-    console.log(`[Client] USDC balance: ${balance.toString()}`);
+    const allowance = await usdc.allowance(this.wallet.address, facilitatorAddress) as bigint;
+    console.log(`[Client] Allowance to facilitator ${facilitatorAddress}: ${allowance}`);
 
-    if (balance < minAmount) {
-      console.log(`[Client] Minting USDC...`);
-      const tx = await usdc.mint(this.wallet.address, 1000000000n); // 1000 USDC
-      await tx.wait();
-      console.log(`[Client] Minted 1000 USDC`);
+    if (allowance >= minAllowance) return;
+
+    const approveAmount = 1_000_000_000n; // 1000 USDC
+    const tx = await usdc.approve(facilitatorAddress, approveAmount);
+    const receipt = await tx.wait();
+    console.log(`[Client] Approve tx: ${receipt?.hash || tx.hash}`);
+  }
+
+  async fetchAgentInfo(url: string): Promise<AgentInfo> {
+    const resp = await fetch(url);
+    if (!resp.ok) {
+      throw new Error(`Failed to read ${url}: ${resp.status}`);
+    }
+    const data = await resp.json() as AgentInfo;
+    return data;
+  }
+
+  async callPaidService(endpoint: string, payload: Record<string, unknown>): Promise<unknown> {
+    const resp = await this.paidFetch(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    const responseText = await resp.text();
+    if (!resp.ok) {
+      throw new Error(`Service returned ${resp.status}: ${responseText}`);
+    }
+
+    try {
+      return JSON.parse(responseText) as unknown;
+    } catch {
+      return responseText;
     }
   }
 
-  /**
-   * Submit feedback for an agent to ERC-8004 Reputation Registry.
-   */
-  async submitFeedback(agentId: number, score: number): Promise<string | null> {
+  async submitFeedback(
+    agentId: number,
+    serviceType: ServiceType,
+    endpoint: string,
+  ): Promise<string> {
     if (!REPUTATION_REGISTRY_ADDRESS) {
-      console.log(`[Client] Reputation Registry not configured, skipping feedback`);
-      return null;
+      throw new Error("REPUTATION_REGISTRY_ADDRESS is required");
     }
 
     const rep = new ethers.Contract(
-      REPUTATION_REGISTRY_ADDRESS, REPUTATION_REGISTRY_ABI, this.wallet
+      REPUTATION_REGISTRY_ADDRESS,
+      REPUTATION_REGISTRY_ABI,
+      this.wallet,
     );
 
     const tx = await rep.giveFeedback(
       agentId,
-      score, // int128 value
-      0,     // valueDecimals
-      "successRate", // tag1
-      "",            // tag2
-      "",            // endpoint
-      "",            // feedbackURI
-      ethers.ZeroHash // feedbackHash
+      FEEDBACK_SCORE,
+      0,
+      serviceType,
+      "quality",
+      endpoint,
+      "",
+      ethers.ZeroHash,
     );
-    await tx.wait();
-    console.log(`[Client] Feedback submitted for agent ${agentId}: ${score}/100`);
-    return tx.hash;
+    const receipt = await tx.wait();
+    return receipt?.hash || tx.hash;
+  }
+
+  async pushFeedbackEvent(event: EventPayload): Promise<void> {
+    const resp = await fetch(`${FACILITATOR_BASE}/api/events`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(event),
+    });
+    if (!resp.ok) {
+      const message = await resp.text();
+      throw new Error(`Failed to push feedback event: ${resp.status} ${message}`);
+    }
   }
 }
 
-/**
- * Demo flow: discover agents, select best, call service, submit feedback.
- */
-async function runDemo() {
-  const client = new ClientAgent(process.env.CLIENT_AGENT_KEY || "0x" + "d".repeat(64));
-
-  console.log("=== BitAgent Client Demo ===\n");
-
-  // Ensure client has USDC for payments
-  await client.ensureUSDCBalance();
-
-  // 1. Discover agents
-  console.log("Step 1: Discovering agents...");
-  const agents = await client.discoverAgents();
-  if (agents.length === 0) {
-    console.log("No agents found. Start agent services first.");
-    return;
+export async function runDemoClient(): Promise<void> {
+  const clientKey = process.env.CLIENT_KEY;
+  if (!clientKey) {
+    throw new Error("CLIENT_KEY environment variable is required");
   }
 
-  console.log(`Found ${agents.length} agents:`);
-  for (const a of agents) {
-    console.log(`  - ${a.name} (ID: ${a.agentId}, Trust: ${a.trustScore}, Tier: ${a.tier}, Stake: ${a.stakeAmount} BTC)`);
-  }
+  console.log("=== BitAgent x402 Client Demo ===");
+  const client = new DemoClient(clientKey);
 
-  // 2. Select highest trust agent that does auditing
-  const auditor = agents.find(a => a.service === "/api/audit");
-  if (auditor) {
-    console.log(`\nStep 2: Selected ${auditor.name} (Trust: ${auditor.trustScore})`);
-    console.log("Step 3: Calling audit service via x402...");
+  await timedStep("Load wallet and BTC balance", async () => {
+    await client.logBalances();
+  });
 
-    const result = await client.callService(auditor, {
-      code: `// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
-contract Simple {
-    mapping(address => uint256) public balances;
-    function deposit() external payable {
-        balances[msg.sender] += msg.value;
-    }
-    function withdraw(uint256 amount) external {
-        require(balances[msg.sender] >= amount);
-        (bool ok, ) = msg.sender.call{value: amount}("");
-        require(ok);
-        balances[msg.sender] -= amount;
-    }
-}`,
+  await timedStep("Ensure MockUSDC balance (>= 1 USDC)", async () => {
+    await client.ensureUsdc(ONE_USDC);
+  });
+
+  await timedStep("Ensure MockUSDC allowance for facilitator", async () => {
+    await client.ensureFacilitatorAllowance(ONE_USDC);
+  });
+
+  for (const service of SERVICE_CONFIGS) {
+    const payload = service.buildBody();
+
+    const agentInfo = await timedStep(`Fetch ${service.label} info`, async () => {
+      return client.fetchAgentInfo(service.infoUrl);
     });
 
-    console.log("\nAudit Result:");
-    console.log(result.result?.substring(0, 500) + "...");
-  }
-
-  // 3. Call translator
-  const translator = agents.find(a => a.service === "/api/translate");
-  if (translator) {
-    console.log(`\nStep 4: Calling ${translator.name} via x402...`);
-    const result = await client.callService(translator, {
-      text: "Bitcoin-backed AI agents solve the trust cold-start problem in agent economies.",
-      direction: "en-zh",
+    await timedStep(`Pay and call ${service.label} via x402`, async () => {
+      const result = await client.callPaidService(service.endpoint, payload);
+      const preview = typeof result === "string"
+        ? result
+        : JSON.stringify(result);
+      console.log(`[Client] ${service.label} response preview: ${preview.slice(0, 220)}`);
     });
-    console.log("Translation:", result.result);
+
+    const feedbackTxHash = await timedStep(`Submit on-chain feedback for ${service.label}`, async () => {
+      return client.submitFeedback(agentInfo.agentId, service.serviceType, service.endpoint);
+    });
+    console.log(`[Client] Feedback tx hash: ${feedbackTxHash}`);
+
+    await timedStep(`Push feedback event for ${service.label} to facilitator`, async () => {
+      await client.pushFeedbackEvent({
+        type: "feedback",
+        agentName: agentInfo.name,
+        agentId: agentInfo.agentId,
+        amount: `${FEEDBACK_SCORE.toString()}/100`,
+        currency: "score",
+        clientAddress: client.address,
+        status: "confirmed",
+        txHash: feedbackTxHash,
+      });
+    });
   }
 
-  console.log("\n=== Demo Complete ===");
+  console.log("\n=== Demo complete: all 3 paid calls + on-chain feedback submitted ===");
 }
 
-runDemo().catch(console.error);
+runDemoClient().catch((error) => {
+  console.error("[Client] Demo failed:", ensureStringError(error));
+  process.exitCode = 1;
+});

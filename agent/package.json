@@ -9,6 +9,7 @@
     "start:auditor": "node dist/services/code-auditor.js",
     "start:translator": "node dist/services/translate-bot.js",
     "start:analyst": "node dist/services/data-analyst.js",
+    "start:orchestrator": "node dist/services/orchestrator.js",
     "start:client": "node dist/client/index.js",
     "demo:local": "node dist/demo/e2e-local.js"
   },

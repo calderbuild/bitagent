@@ -1,4 +1,4 @@
-import { Shield, Code, Languages, BarChart3 } from "lucide-react";
+import { Shield, Code, Languages, BarChart3, Network } from "lucide-react";
 import type { Agent, TrustTier } from "../types";
 
 interface Props {
@@ -17,6 +17,7 @@ const serviceIcons: Record<string, typeof Code> = {
   audit: Code,
   translate: Languages,
   analyze: BarChart3,
+  orchestrate: Network,
 };
 
 export function AgentCard({ agent }: Props) {
@@ -58,6 +59,7 @@ export function AgentCard({ agent }: Props) {
             {agent.tier}
           </span>
         </div>
+        <div className="trust-gauge__rep">Rep: {agent.reputationScore.toFixed(0)}/100</div>
       </div>
 
       <div className="agent-card__stats">

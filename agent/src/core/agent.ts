@@ -231,7 +231,7 @@ export class BitAgent {
             asset: USDC_ADDRESS,
             extra: {
               assetTransferMethod: "eip3009",
-              name: "MockUSDC",
+              name: "USD Coin",
               version: "1",
             },
           },

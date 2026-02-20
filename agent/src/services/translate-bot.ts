@@ -16,13 +16,24 @@ export async function startTranslateBot() {
   });
 
   await agent.boot(async (req, res) => {
-    const { text, direction } = req.body;
+    const { text, direction, from, to } = req.body as {
+      text?: string;
+      direction?: string;
+      from?: string;
+      to?: string;
+    };
     if (!text) {
       res.status(400).json({ error: "Missing 'text' in request body" });
       return;
     }
 
-    const dir = direction === "en-zh" ? "English to Chinese" : "Chinese to English";
+    const normalizedFrom = (from || "").toLowerCase();
+    const normalizedTo = (to || "").toLowerCase();
+    const fromToDirection = normalizedFrom && normalizedTo
+      ? `${normalizedFrom}-${normalizedTo}`
+      : "";
+    const normalizedDirection = (direction || fromToDirection || "zh-en").toLowerCase();
+    const dir = normalizedDirection === "en-zh" ? "English to Chinese" : "Chinese to English";
 
     const translation = await chatCompletion(
       SYSTEM_PROMPT,

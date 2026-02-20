@@ -5,9 +5,10 @@ export interface Agent {
   name: string;
   description: string;
   service: string;
-  serviceType: "audit" | "translate" | "analyze";
+  serviceType: "audit" | "translate" | "analyze" | "orchestrate";
   wallet: string;
   btcStake: number;
+  reputationScore: number;
   trustScore: number;
   tier: TrustTier;
   pricePerCall: number;

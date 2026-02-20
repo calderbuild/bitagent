@@ -13,6 +13,8 @@ import {
   STAKING_VAULT_ABI,
   IDENTITY_REGISTRY_ADDRESS,
   IDENTITY_REGISTRY_ABI,
+  REPUTATION_REGISTRY_ADDRESS,
+  REPUTATION_REGISTRY_ABI,
 } from "../core/config.js";
 import { calculateTrustScore } from "../trust/score.js";
 
@@ -30,6 +32,21 @@ const goatTestnet3 = defineChain({
 
 const GOAT_NETWORK = `eip155:${GOAT_CHAIN_ID}` as const;
 const PORT = parseInt(process.env.FACILITATOR_PORT || "4022");
+
+type EventType = "payment" | "stake" | "slash" | "feedback" | "register";
+
+interface FeedEvent {
+  id: string;
+  timestamp: number;
+  type: EventType;
+  agentName: string;
+  agentId: number;
+  amount: string;
+  currency: string;
+  clientAddress: string;
+  status: string;
+  txHash?: string;
+}
 
 export async function startFacilitator() {
   const privateKey = process.env.FACILITATOR_KEY;
@@ -83,23 +100,12 @@ export async function startFacilitator() {
   const deployerWallet = new ethers.Wallet(privateKey, provider);
 
   // Known agent service ports
-  const AGENT_PORTS = [3001, 3002, 3003];
+  const AGENT_PORTS = [3001, 3002, 3003, 3004];
 
   // Event log for transaction feed
-  const eventLog: Array<{
-    id: string;
-    timestamp: number;
-    type: "payment" | "stake" | "slash" | "feedback" | "register";
-    agentName: string;
-    agentId: number;
-    amount: string;
-    currency: string;
-    clientAddress: string;
-    status: string;
-    txHash?: string;
-  }> = [];
+  const eventLog: FeedEvent[] = [];
 
-  function addEvent(event: typeof eventLog[0]) {
+  function addEvent(event: FeedEvent) {
     eventLog.unshift(event);
     if (eventLog.length > 200) eventLog.length = 200;
   }
@@ -148,10 +154,33 @@ export async function startFacilitator() {
           }
         } catch { /* skip */ }
 
+        // Get reputation summary from ERC-8004 ReputationRegistry
+        let reputationScore = 50;
+        if (REPUTATION_REGISTRY_ADDRESS) {
+          try {
+            const reputation = new ethers.Contract(
+              REPUTATION_REGISTRY_ADDRESS,
+              REPUTATION_REGISTRY_ABI,
+              provider,
+            );
+            const rawClients = await reputation.getClients(info.agentId) as string[];
+            const clients = [...rawClients]; // copy frozen ethers Result array
+            if (clients.length > 0) {
+              const summary = await reputation.getSummary(info.agentId, clients, "", "");
+              const value = Number(summary[1]);
+              const decimals = Number(summary[2]);
+              const scaled = value / Math.pow(10, decimals);
+              reputationScore = Math.min(Math.max(scaled, 0), 100);
+            }
+          } catch {
+            // fallback to default for new agents
+          }
+        }
+
         // Calculate trust score
         const trust = calculateTrustScore({
           btcStake: ethers.parseEther(btcStake.toString()),
-          reputationScore: 50,
+          reputationScore,
           feedbackCount: requestCount,
           slashHistory: slashCount,
           uptimeDays: 1,
@@ -165,6 +194,7 @@ export async function startFacilitator() {
           serviceType: info.service?.replace("/api/", "") || "unknown",
           wallet: info.wallet,
           btcStake,
+          reputationScore,
           trustScore: trust.total,
           tier: trust.tier,
           pricePerCall: parseFloat(info.price?.replace("$", "") || "0"),
@@ -213,7 +243,7 @@ export async function startFacilitator() {
       }
 
       res.json({
-        totalAgents: Math.max(totalAgents, 3),
+        totalAgents: Math.max(totalAgents, 4),
         totalBtcStaked,
         totalTransactions: eventLog.length,
         networkStatus: "live" as const,
@@ -279,6 +309,54 @@ export async function startFacilitator() {
   // GET /api/events -- transaction event log
   app.get("/api/events", (_req, res) => {
     res.json(eventLog);
+  });
+
+  // POST /api/events -- append external events into transaction feed
+  app.post("/api/events", (req, res) => {
+    const {
+      type,
+      agentName,
+      agentId,
+      amount,
+      currency,
+      clientAddress,
+      status,
+      txHash,
+    } = req.body as Partial<FeedEvent>;
+
+    if (!type || !agentName || agentId === undefined || !amount || !currency || !clientAddress || !status) {
+      res.status(400).json({
+        error: "Missing required fields: type, agentName, agentId, amount, currency, clientAddress, status",
+      });
+      return;
+    }
+
+    const allowedTypes: EventType[] = ["payment", "stake", "slash", "feedback", "register"];
+    if (!allowedTypes.includes(type as EventType)) {
+      res.status(400).json({ error: "Invalid event type" });
+      return;
+    }
+
+    const normalizedAgentId = Number(agentId);
+    if (!Number.isFinite(normalizedAgentId) || normalizedAgentId < 0) {
+      res.status(400).json({ error: "Invalid agentId" });
+      return;
+    }
+
+    addEvent({
+      id: `${type}-${Date.now()}-${Math.floor(Math.random() * 10000)}`,
+      timestamp: Date.now(),
+      type: type as EventType,
+      agentName,
+      agentId: normalizedAgentId,
+      amount: String(amount),
+      currency: String(currency),
+      clientAddress: String(clientAddress),
+      status: String(status),
+      txHash: txHash ? String(txHash) : undefined,
+    });
+
+    res.json({ success: true, totalEvents: eventLog.length });
   });
 
   app.get("/supported", (_req, res) => {

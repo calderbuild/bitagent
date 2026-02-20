@@ -31,6 +31,7 @@ export const STAKING_VAULT_ABI = [
 export const MOCK_USDC_ABI = [
   "function mint(address to, uint256 amount) external",
   "function balanceOf(address account) external view returns (uint256)",
+  "function allowance(address owner, address spender) external view returns (uint256)",
   "function approve(address spender, uint256 amount) external returns (bool)",
   "function transferWithAuthorization(address from, address to, uint256 value, uint256 validAfter, uint256 validBefore, bytes32 nonce, uint8 v, bytes32 r, bytes32 s) external",
   "function DOMAIN_SEPARATOR() external view returns (bytes32)",
@@ -53,4 +54,5 @@ export const REPUTATION_REGISTRY_ABI = [
   "function giveFeedback(uint256 agentId, int128 value, uint8 valueDecimals, string tag1, string tag2, string endpoint, string feedbackURI, bytes32 feedbackHash) external",
   "function getSummary(uint256 agentId, address[] clientAddresses, string tag1, string tag2) external view returns (uint64, int128, uint8)",
   "function readAllFeedback(uint256 agentId, address[] clientAddresses, string tag1, string tag2, bool includeRevoked) external view returns (address[], uint64[], int128[], uint8[], string[], string[], bool[])",
+  "function getClients(uint256 agentId) external view returns (address[])",
 ];

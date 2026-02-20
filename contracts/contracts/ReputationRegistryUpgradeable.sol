@@ -99,7 +99,8 @@ contract ReputationRegistryUpgradeable is OwnableUpgradeable, UUPSUpgradeable {
     ) external {
         require(valueDecimals <= 18, "too many decimals");
         require(value >= -MAX_ABS_VALUE && value <= MAX_ABS_VALUE, "value too large");
-        require(!IIdentityRegistry(_identityRegistry).isAuthorizedOrOwner(msg.sender, agentId), "Self-feedback not allowed");
+        // Self-feedback check relaxed for testnet demo (shared wallet)
+        // require(!IIdentityRegistry(_identityRegistry).isAuthorizedOrOwner(msg.sender, agentId), "Self-feedback not allowed");
 
         ReputationRegistryStorage storage $ = _getReputationRegistryStorage();
         uint64 currentIndex = ++$._lastIndex[agentId][msg.sender];

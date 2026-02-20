@@ -158,6 +158,12 @@ body::after {
 .trust-gauge__labels { display: flex; justify-content: space-between; align-items: baseline; margin-top: 8px; }
 .trust-gauge__score { font-family: var(--font-mono); font-weight: 700; font-size: 1.5rem; transition: color 0.5s; }
 .trust-gauge__score.animating { animation: score-flash 0.5s ease; }
+.trust-gauge__rep {
+  margin-top: 4px;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--text-dim);
+}
 @keyframes score-flash { 0% { transform: scale(1); } 30% { transform: scale(1.15); color: var(--red); } 100% { transform: scale(1); } }
 
 /* Tier Badge */
