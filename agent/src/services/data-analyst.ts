@@ -28,9 +28,10 @@ export async function startDataAnalyst() {
       return;
     }
 
+    const dataStr = typeof data === "string" ? data : JSON.stringify(data, null, 2);
     const prompt = question
-      ? `Analyze this data and answer: ${question}\n\nData:\n${data}`
-      : `Analyze this data and provide insights:\n\n${data}`;
+      ? `Analyze this data and answer: ${question}\n\nData:\n${dataStr}`
+      : `Analyze this data and provide insights:\n\n${dataStr}`;
 
     const analysis = await chatCompletion(SYSTEM_PROMPT, prompt, 2048);
     res.json({
