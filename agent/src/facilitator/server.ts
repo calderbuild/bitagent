@@ -204,6 +204,7 @@ export async function startFacilitator() {
             btcStake,
             reputationScore,
             trustScore: trust.total,
+            trustBreakdown: trust.breakdown,
             tier: trust.tier,
             pricePerCall: parseFloat((info.price as string)?.replace("$", "") || "0"),
             online,

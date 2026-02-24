@@ -187,6 +187,14 @@ body::after {
 .tier-badge--bronze { background: rgba(205,127,50,0.12); color: var(--tier-bronze); }
 .tier-badge--unverified { background: rgba(85,85,85,0.15); color: var(--tier-unverified); }
 
+/* Trust Breakdown */
+.trust-breakdown { display: flex; flex-direction: column; gap: 4px; margin-top: 8px; }
+.trust-breakdown__row { display: flex; align-items: center; gap: 6px; }
+.trust-breakdown__label { font-family: var(--font-mono); font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-dim); width: 62px; flex-shrink: 0; }
+.trust-breakdown__bar { flex: 1; height: 3px; background: var(--bg-deep); border-radius: 2px; overflow: hidden; }
+.trust-breakdown__fill { height: 100%; border-radius: 2px; transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+.trust-breakdown__value { font-family: var(--font-mono); font-size: 0.55rem; font-weight: 600; width: 40px; text-align: right; flex-shrink: 0; }
+
 /* Agent Card Stats */
 .agent-card__stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
 .agent-card__stat { display: flex; flex-direction: column; }

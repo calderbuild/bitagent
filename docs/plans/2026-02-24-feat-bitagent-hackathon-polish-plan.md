@@ -407,8 +407,8 @@ type SignerInput = Omit<FacilitatorEvmSigner, "getAddresses"> & { address: `0x${
 **文件**：`agent/src/facilitator/server.ts`, `frontend/src/components/AgentCard.tsx`
 
 **改动**：
-- [ ] Facilitator `/api/agents` 响应中增加 `trustBreakdown` 字段
-- [ ] AgentCard 增加 trust score 分解可视化（4 个小进度条或雷达图）
+- [x] Facilitator `/api/agents` 响应中增加 `trustBreakdown` 字段
+- [x] AgentCard 增加 trust score 分解可视化（4 个小进度条或雷达图）
 
 ### 5.2 Dashboard 交易详情弹窗
 

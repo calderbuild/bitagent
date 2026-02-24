@@ -64,6 +64,14 @@ export function AgentCard({ agent, onTry }: Props) {
           </span>
         </div>
         <div className="trust-gauge__rep">Rep: {agent.reputationScore.toFixed(0)}/100</div>
+        {agent.trustBreakdown && (
+          <div className="trust-breakdown">
+            <TrustBar label="BTC Stake" value={agent.trustBreakdown.stakeScore} max={40} color="var(--btc-orange)" />
+            <TrustBar label="Reputation" value={agent.trustBreakdown.reputationScore} max={30} color="var(--blue)" />
+            <TrustBar label="Feedback" value={agent.trustBreakdown.feedbackScore} max={15} color="var(--green)" />
+            <TrustBar label="Stability" value={agent.trustBreakdown.stabilityScore} max={15} color="var(--tier-silver)" />
+          </div>
+        )}
       </div>
 
       <div className="agent-card__stats">
@@ -92,6 +100,19 @@ export function AgentCard({ agent, onTry }: Props) {
           <Zap size={12} /> Try
         </button>
       )}
+    </div>
+  );
+}
+
+function TrustBar({ label, value, max, color }: { label: string; value: number; max: number; color: string }) {
+  const pct = Math.min((value / max) * 100, 100);
+  return (
+    <div className="trust-breakdown__row">
+      <span className="trust-breakdown__label">{label}</span>
+      <div className="trust-breakdown__bar">
+        <div className="trust-breakdown__fill" style={{ width: `${pct}%`, background: color }} />
+      </div>
+      <span className="trust-breakdown__value" style={{ color }}>{value.toFixed(1)}/{max}</span>
     </div>
   );
 }

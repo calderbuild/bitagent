@@ -10,6 +10,7 @@ export interface Agent {
   btcStake: number;
   reputationScore: number;
   trustScore: number;
+  trustBreakdown?: TrustBreakdown;
   tier: TrustTier;
   pricePerCall: number;
   online: boolean;
