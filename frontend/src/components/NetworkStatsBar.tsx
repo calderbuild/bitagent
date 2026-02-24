@@ -41,10 +41,15 @@ export function NetworkStatsBar({ stats, connected }: Props) {
 
       <div className="stat-item">
         <span className="stat-item__label">Block Height</span>
-        <span className="stat-item__value">
+        <a
+          className="stat-item__value stat-item__link"
+          href={`https://explorer.testnet3.goat.network/block/${stats.blockHeight}`}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
           <Blocks size={12} style={{ verticalAlign: "middle", marginRight: 4 }} />
           {stats.blockHeight.toLocaleString()}
-        </span>
+        </a>
       </div>
 
       <div className="stat-item">

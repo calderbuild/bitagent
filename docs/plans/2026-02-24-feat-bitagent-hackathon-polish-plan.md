@@ -167,11 +167,11 @@ Architecture review 建议将 Phase 5.1 (Agent-to-Agent 自主交互) 合并到 
 **文件**：`frontend/src/components/AgentCard.tsx`, `frontend/src/components/TryAgentModal.tsx`（新建）, `frontend/src/App.tsx`, `frontend/src/index.css`
 
 **改动**：
-- [ ] AgentCard 添加 "Try" 按钮（仅 online Agent 可点）
-- [ ] 新建 TryAgentModal 组件：输入框 + "Call Agent" 按钮 + 结果展示区
-- [ ] 调用流程：POST 到 Agent 的 service endpoint（绕过 x402，直接调用，Demo 环境可接受）
-- [ ] 展示：请求耗时、AI 回复内容、Agent ID
-- [ ] 每个 Agent 预填默认输入（合约代码 / 翻译文本 / 数据集 / 复合任务）
+- [x] AgentCard 添加 "Try" 按钮（仅 online Agent 可点）
+- [x] 新建 TryAgentModal 组件：输入框 + "Call Agent" 按钮 + 结果展示区
+- [x] 调用流程：POST 到 Agent 的 service endpoint（绕过 x402，直接调用，Demo 环境可接受）
+- [x] 展示：请求耗时、AI 回复内容、Agent ID
+- [x] 每个 Agent 预填默认输入（合约代码 / 翻译文本 / 数据集 / 复合任务）
 
 **验收**：评委打开 Dashboard，点 "Try"，输入内容，看到 AI 回复
 
@@ -198,9 +198,9 @@ type AsyncState =
 **文件**：`frontend/src/components/NetworkStatsBar.tsx`, `frontend/src/components/AgentCard.tsx`, `agent/src/client/index.ts`
 
 **改动**：
-- [ ] NetworkStatsBar 的 Block Height 改为可点击链接：`https://explorer.testnet3.goat.network/block/{blockHeight}`
-- [ ] AgentCard 钱包地址改为可点击链接：`https://explorer.testnet3.goat.network/address/{wallet}`
-- [ ] Client Demo 输出的 tx hash 附带 Explorer 链接
+- [x] NetworkStatsBar 的 Block Height 改为可点击链接：`https://explorer.testnet3.goat.network/block/{blockHeight}`
+- [x] AgentCard 钱包地址改为可点击链接：`https://explorer.testnet3.goat.network/address/{wallet}`
+- [x] Client Demo 输出的 tx hash 附带 Explorer 链接
 
 **验收**：Dashboard 上所有链上数据都有 Explorer 跳转
 

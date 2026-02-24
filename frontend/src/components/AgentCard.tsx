@@ -1,8 +1,9 @@
-import { Shield, Code, Languages, BarChart3, Network } from "lucide-react";
+import { Shield, Code, Languages, BarChart3, Network, Zap } from "lucide-react";
 import type { Agent, TrustTier } from "../types";
 
 interface Props {
   agent: Agent;
+  onTry?: (agent: Agent) => void;
 }
 
 const tierColors: Record<TrustTier, string> = {
@@ -20,7 +21,7 @@ const serviceIcons: Record<string, typeof Code> = {
   orchestrate: Network,
 };
 
-export function AgentCard({ agent }: Props) {
+export function AgentCard({ agent, onTry }: Props) {
   const color = tierColors[agent.tier];
   const ServiceIcon = serviceIcons[agent.serviceType] || Shield;
 
@@ -33,6 +34,16 @@ export function AgentCard({ agent }: Props) {
             {agent.name}
           </div>
           <div className="agent-card__service">{agent.description}</div>
+          {agent.wallet && (
+            <a
+              className="agent-card__wallet"
+              href={`https://explorer.testnet3.goat.network/address/${agent.wallet}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {agent.wallet.slice(0, 6)}...{agent.wallet.slice(-4)}
+            </a>
+          )}
         </div>
         <div className={`agent-card__status agent-card__status--${agent.online ? "online" : "offline"}`}>
           <span className={`status-dot status-dot--${agent.online ? "live" : "offline"}`} />
@@ -82,6 +93,12 @@ export function AgentCard({ agent }: Props) {
           <span className="agent-card__stat-value">{agent.earnings.toFixed(2)} USDC</span>
         </div>
       </div>
+
+      {onTry && agent.online && (
+        <button className="try-btn" onClick={() => onTry(agent)}>
+          <Zap size={12} /> Try
+        </button>
+      )}
     </div>
   );
 }

@@ -4,6 +4,7 @@ import { AgentCard } from "./components/AgentCard";
 import { TransactionFeed } from "./components/TransactionFeed";
 import { TrustLeaderboard } from "./components/TrustLeaderboard";
 import { SlashDemo } from "./components/SlashDemo";
+import { TryAgentModal } from "./components/TryAgentModal";
 import { MOCK_AGENTS, MOCK_NETWORK_STATS, generateTransaction } from "./data/mock";
 import { Users } from "lucide-react";
 import type { Agent, Transaction, NetworkStats } from "./types";
@@ -15,6 +16,7 @@ function App() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [stats, setStats] = useState<NetworkStats>(MOCK_NETWORK_STATS);
   const [connected, setConnected] = useState(false);
+  const [tryAgent, setTryAgent] = useState<Agent | null>(null);
   const simulateRef = useRef(true);
 
   // Fetch real agent data from facilitator API
@@ -188,7 +190,7 @@ function App() {
             <div className="panel__body">
               <div className="agent-grid">
                 {agents.map((agent) => (
-                  <AgentCard key={agent.agentId} agent={agent} />
+                  <AgentCard key={agent.agentId} agent={agent} onTry={setTryAgent} />
                 ))}
               </div>
             </div>
@@ -206,6 +208,8 @@ function App() {
           <SlashDemo agents={agents} onSlash={handleSlash} />
         </div>
       </div>
+
+      <TryAgentModal agent={tryAgent} onClose={() => setTryAgent(null)} />
     </div>
   );
 }

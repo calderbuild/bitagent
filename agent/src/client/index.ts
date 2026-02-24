@@ -326,7 +326,7 @@ export async function runDemoClient(): Promise<void> {
     const feedbackTxHash = await timedStep(`Submit on-chain feedback for ${service.label}`, async () => {
       return client.submitFeedback(agentInfo.agentId, service.serviceType, service.endpoint);
     });
-    console.log(`[Client] Feedback tx hash: ${feedbackTxHash}`);
+    console.log(`[Client] Feedback tx: https://explorer.testnet3.goat.network/tx/${feedbackTxHash}`);
 
     await timedStep(`Push feedback event for ${service.label} to facilitator`, async () => {
       await client.pushFeedbackEvent({

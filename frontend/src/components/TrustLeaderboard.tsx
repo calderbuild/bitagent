@@ -33,7 +33,14 @@ export function TrustLeaderboard({ agents }: Props) {
             </span>
             <div className="leaderboard__agent">
               <span className="leaderboard__agent-name">{agent.name}</span>
-              <span className="leaderboard__agent-wallet">{agent.wallet.slice(0, 6)}...{agent.wallet.slice(-4)}</span>
+              <a
+                className="leaderboard__agent-wallet"
+                href={`https://explorer.testnet3.goat.network/address/${agent.wallet}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {agent.wallet.slice(0, 6)}...{agent.wallet.slice(-4)}
+              </a>
             </div>
             <div>
               <div className="stake-bar">
