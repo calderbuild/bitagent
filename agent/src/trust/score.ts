@@ -17,13 +17,20 @@ export interface TrustResult {
   tier: "diamond" | "gold" | "silver" | "bronze" | "unverified";
 }
 
+// Threshold for logarithmic stake normalization.
+// At this stake level an agent achieves full stake score.
+// Uses log curve so demo-range stakes (0.000005-0.00001 BTC) produce meaningful scores.
+const STAKE_THRESHOLD_ETHER = 0.00001;
+
 /**
  * Calculate agent trust score.
  * BTC stake is weighted highest (40%) -- core differentiator.
  */
 export function calculateTrustScore(input: TrustInput): TrustResult {
-  // BTC stake (40%): normalized to 0-40, 0.01 BTC = max score
-  const stakeNormalized = Math.min(Number(input.btcStake) / 1e16, 100);
+  // BTC stake (40%): logarithmic normalization for diminishing returns
+  const stakeEther = Number(input.btcStake) / 1e18;
+  const stakeRatio = stakeEther / STAKE_THRESHOLD_ETHER;
+  const stakeNormalized = Math.min(100, 100 * Math.log2(1 + stakeRatio) / Math.log2(2));
   const stakeScore = stakeNormalized * 0.4;
 
   // Reputation (30%): direct from ERC-8004 summary

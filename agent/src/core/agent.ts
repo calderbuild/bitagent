@@ -57,7 +57,7 @@ export class BitAgent {
       if (_req.method === "OPTIONS") { res.sendStatus(204); return; }
       next();
     });
-    this.app.use(express.json({ limit: "1mb" }));
+    this.app.use(express.json({ limit: "10kb" }));
   }
 
   get address() {

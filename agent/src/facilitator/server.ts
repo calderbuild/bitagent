@@ -84,12 +84,21 @@ export async function startFacilitator() {
   const facilitator = new x402Facilitator();
   facilitator.register(GOAT_NETWORK, evmScheme);
 
+  const ADMIN_TOKEN = process.env.ADMIN_TOKEN || "bitagent-demo-2026";
+  const ALLOWED_ORIGINS = ["http://localhost:5173", "http://localhost:4173", "http://127.0.0.1:5173"];
+
   // HTTP server
   const app = express();
   app.use((_req, res, next) => {
-    res.setHeader("Access-Control-Allow-Origin", "*");
+    const origin = _req.headers.origin;
+    if (origin && ALLOWED_ORIGINS.includes(origin)) {
+      res.setHeader("Access-Control-Allow-Origin", origin);
+    } else {
+      // Allow same-origin and agent-to-facilitator calls (no origin header)
+      res.setHeader("Access-Control-Allow-Origin", ALLOWED_ORIGINS[0]);
+    }
     res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
     if (_req.method === "OPTIONS") { res.sendStatus(204); return; }
     next();
   });
@@ -112,151 +121,163 @@ export async function startFacilitator() {
 
   // GET /api/agents -- aggregate info from all running agents + chain data
   app.get("/api/agents", async (_req, res) => {
-    const agents: any[] = [];
-
-    for (const port of AGENT_PORTS) {
-      try {
-        const resp = await fetch(`http://localhost:${port}/info`, { signal: AbortSignal.timeout(2000) });
-        if (!resp.ok) continue;
-        const info = await resp.json() as any;
-
-        // Get real health status
-        let online = false;
+    const agentResults = await Promise.all(
+      AGENT_PORTS.map(async (port) => {
         try {
-          const hResp = await fetch(`http://localhost:${port}/health`, { signal: AbortSignal.timeout(1000) });
-          online = hResp.ok;
-        } catch { /* offline */ }
+          const resp = await fetch(`http://localhost:${port}/info`, { signal: AbortSignal.timeout(2000) });
+          if (!resp.ok) return null;
+          const info = await resp.json() as Record<string, unknown>;
 
-        // Get on-chain stake
-        let btcStake = 0;
-        let slashCount = 0;
-        if (STAKING_VAULT_ADDRESS) {
-          try {
-            const vault = new ethers.Contract(STAKING_VAULT_ADDRESS, STAKING_VAULT_ABI, provider);
-            const stakeInfo = await vault.getStakeInfo(info.agentId);
+          // Fetch health, stake, and reputation in parallel
+          const [healthResult, stakeResult, reputationResult] = await Promise.allSettled([
+            // Health + request count + earnings (single call replaces two duplicate fetches)
+            fetch(`http://localhost:${port}/health`, { signal: AbortSignal.timeout(1000) })
+              .then(r => r.ok ? r.json() as Promise<Record<string, unknown>> : null),
+            // On-chain stake info
+            STAKING_VAULT_ADDRESS
+              ? new ethers.Contract(STAKING_VAULT_ADDRESS, STAKING_VAULT_ABI, provider)
+                  .getStakeInfo(info.agentId)
+              : Promise.resolve(null),
+            // ERC-8004 reputation
+            REPUTATION_REGISTRY_ADDRESS
+              ? (async () => {
+                  const reputation = new ethers.Contract(
+                    REPUTATION_REGISTRY_ADDRESS, REPUTATION_REGISTRY_ABI, provider,
+                  );
+                  const rawClients = await reputation.getClients(info.agentId) as string[];
+                  const clients = [...rawClients];
+                  if (clients.length === 0) return null;
+                  return reputation.getSummary(info.agentId, clients, "", "");
+                })()
+              : Promise.resolve(null),
+          ]);
+
+          // Parse health
+          const health = healthResult.status === "fulfilled" ? healthResult.value : null;
+          const online = !!health;
+          const agentStats = (health as Record<string, unknown>)?.agent as Record<string, unknown> | undefined;
+          const requestCount = Number(agentStats?.requestCount || 0);
+          const earnings = Number(agentStats?.earnings || 0) / 1e6;
+
+          // Parse stake
+          let btcStake = 0;
+          let slashCount = 0;
+          if (stakeResult.status === "fulfilled" && stakeResult.value) {
+            const stakeInfo = stakeResult.value;
             btcStake = Number(ethers.formatEther(stakeInfo[0]));
             const slashedAmt = Number(ethers.formatEther(stakeInfo[2]));
-            if (slashedAmt > 0) {
-              slashCount = Math.ceil(slashedAmt / 0.001);
-            }
-          } catch { /* not staked */ }
-        }
-
-        // Get request count + earnings from health endpoint
-        let requestCount = 0;
-        let earnings = 0;
-        try {
-          const hResp = await fetch(`http://localhost:${port}/health`, { signal: AbortSignal.timeout(1000) });
-          if (hResp.ok) {
-            const health = await hResp.json() as any;
-            requestCount = health.agent?.requestCount || 0;
-            earnings = Number(health.agent?.earnings || 0) / 1e6;
+            if (slashedAmt > 0) slashCount = Math.ceil(slashedAmt / 0.001);
           }
-        } catch { /* skip */ }
 
-        // Get reputation summary from ERC-8004 ReputationRegistry
-        let reputationScore = 50;
-        if (REPUTATION_REGISTRY_ADDRESS) {
-          try {
-            const reputation = new ethers.Contract(
-              REPUTATION_REGISTRY_ADDRESS,
-              REPUTATION_REGISTRY_ABI,
-              provider,
-            );
-            const rawClients = await reputation.getClients(info.agentId) as string[];
-            const clients = [...rawClients]; // copy frozen ethers Result array
-            if (clients.length > 0) {
-              const summary = await reputation.getSummary(info.agentId, clients, "", "");
-              const value = Number(summary[1]);
-              const decimals = Number(summary[2]);
-              const scaled = value / Math.pow(10, decimals);
-              reputationScore = Math.min(Math.max(scaled, 0), 100);
-            }
-          } catch {
-            // fallback to default for new agents
+          // Parse reputation
+          let reputationScore = 50;
+          if (reputationResult.status === "fulfilled" && reputationResult.value) {
+            const summary = reputationResult.value;
+            const value = Number(summary[1]);
+            const decimals = Number(summary[2]);
+            const scaled = value / Math.pow(10, decimals);
+            reputationScore = Math.min(Math.max(scaled, 0), 100);
           }
-        }
 
-        // Calculate trust score
-        const trust = calculateTrustScore({
-          btcStake: ethers.parseEther(btcStake.toString()),
-          reputationScore,
-          feedbackCount: requestCount,
-          slashHistory: slashCount,
-          uptimeDays: 1,
-        });
+          const trust = calculateTrustScore({
+            btcStake: ethers.parseEther(btcStake.toString()),
+            reputationScore,
+            feedbackCount: requestCount,
+            slashHistory: slashCount,
+            uptimeDays: 1,
+          });
 
-        agents.push({
-          agentId: info.agentId,
-          name: info.name,
-          description: info.description,
-          service: info.service,
-          serviceType: info.service?.replace("/api/", "") || "unknown",
-          wallet: info.wallet,
-          btcStake,
-          reputationScore,
-          trustScore: trust.total,
-          tier: trust.tier,
-          pricePerCall: parseFloat(info.price?.replace("$", "") || "0"),
-          online,
-          requestCount,
-          earnings,
-          slashCount,
-        });
-      } catch { /* agent unreachable */ }
-    }
+          return {
+            agentId: info.agentId,
+            name: info.name,
+            description: info.description,
+            service: info.service,
+            serviceType: (info.service as string)?.replace("/api/", "") || "unknown",
+            wallet: info.wallet,
+            btcStake,
+            reputationScore,
+            trustScore: trust.total,
+            tier: trust.tier,
+            pricePerCall: parseFloat((info.price as string)?.replace("$", "") || "0"),
+            online,
+            requestCount,
+            earnings,
+            slashCount,
+          };
+        } catch { return null; }
+      }),
+    );
 
-    res.json(agents);
+    res.json(agentResults.filter(Boolean));
   });
 
-  // GET /api/stats -- real network stats from chain
+  // GET /api/stats -- real network stats from chain (cached 10s)
+  let statsCache: { data: Record<string, unknown>; ts: number } | null = null;
+
   app.get("/api/stats", async (_req, res) => {
+    if (statsCache && Date.now() - statsCache.ts < 10_000) {
+      // Refresh transaction count from in-memory log even when cached
+      res.json({ ...statsCache.data, totalTransactions: eventLog.length });
+      return;
+    }
+
     try {
-      const blockNumber = await provider.getBlockNumber();
+      // Fetch block number, total staked, and agent count in parallel
+      const [blockNumber, totalBtcStaked, totalAgents] = await Promise.all([
+        provider.getBlockNumber(),
+        // Sum effective stakes for agent IDs 0-10
+        STAKING_VAULT_ADDRESS
+          ? (async () => {
+              const vault = new ethers.Contract(STAKING_VAULT_ADDRESS, STAKING_VAULT_ABI, provider);
+              const results = await Promise.allSettled(
+                Array.from({ length: 11 }, (_, i) => vault.effectiveStake(i)),
+              );
+              return results.reduce((sum, r) =>
+                r.status === "fulfilled" ? sum + Number(ethers.formatEther(r.value)) : sum, 0);
+            })()
+          : Promise.resolve(0),
+        // Count registered agents
+        IDENTITY_REGISTRY_ADDRESS
+          ? (async () => {
+              const identity = new ethers.Contract(IDENTITY_REGISTRY_ADDRESS, IDENTITY_REGISTRY_ABI, provider);
+              const results = await Promise.allSettled(
+                Array.from({ length: 21 }, (_, i) => identity.ownerOf(i)),
+              );
+              // Count consecutive fulfilled results from index 0
+              let count = 0;
+              for (const r of results) {
+                if (r.status === "fulfilled") count++;
+                else break;
+              }
+              return count;
+            })()
+          : Promise.resolve(0),
+      ]);
 
-      // Get total staked from vault
-      let totalBtcStaked = 0;
-      if (STAKING_VAULT_ADDRESS) {
-        const vault = new ethers.Contract(STAKING_VAULT_ADDRESS, STAKING_VAULT_ABI, provider);
-        // Sum stakes for known agent IDs (0-10)
-        for (let i = 0; i <= 10; i++) {
-          try {
-            const effective = await vault.effectiveStake(i);
-            totalBtcStaked += Number(ethers.formatEther(effective));
-          } catch { break; }
-        }
-      }
-
-      // Count registered agents from identity registry
-      let totalAgents = 0;
-      if (IDENTITY_REGISTRY_ADDRESS) {
-        try {
-          const identity = new ethers.Contract(IDENTITY_REGISTRY_ADDRESS, IDENTITY_REGISTRY_ABI, provider);
-          // Try to get the last registered ID by calling ownerOf with increasing IDs
-          for (let i = 0; i <= 20; i++) {
-            try {
-              await identity.ownerOf(i);
-              totalAgents = i + 1;
-            } catch { break; }
-          }
-        } catch { /* fallback */ }
-      }
-
-      res.json({
+      const data = {
         totalAgents: Math.max(totalAgents, 4),
         totalBtcStaked,
         totalTransactions: eventLog.length,
         networkStatus: "live" as const,
         blockHeight: blockNumber,
         chainId: GOAT_CHAIN_ID,
-      });
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
+      };
+
+      statsCache = { data, ts: Date.now() };
+      res.json(data);
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : String(error);
+      res.status(500).json({ error: msg });
     }
   });
 
-  // POST /api/slash -- call real StakingVault.slash()
+  // POST /api/slash -- call real StakingVault.slash() (admin-only)
   app.post("/api/slash", async (req, res) => {
+    if (req.headers.authorization !== `Bearer ${ADMIN_TOKEN}`) {
+      res.status(401).json({ error: "Unauthorized" });
+      return;
+    }
+
     try {
       const { agentId, amount, reason } = req.body;
       if (agentId === undefined || !amount) {
@@ -311,8 +332,13 @@ export async function startFacilitator() {
     res.json(eventLog);
   });
 
-  // POST /api/events -- append external events into transaction feed
+  // POST /api/events -- append external events into transaction feed (admin-only)
   app.post("/api/events", (req, res) => {
+    if (req.headers.authorization !== `Bearer ${ADMIN_TOKEN}`) {
+      res.status(401).json({ error: "Unauthorized" });
+      return;
+    }
+
     const {
       type,
       agentName,

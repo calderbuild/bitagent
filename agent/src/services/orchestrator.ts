@@ -193,7 +193,10 @@ class OrchestratorCaller {
   async pushPaymentEvent(info: ServiceInfo, amount: string, txHash?: string): Promise<void> {
     await fetch(`${FACILITATOR_BASE}/api/events`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${process.env.ADMIN_TOKEN || "bitagent-demo-2026"}`,
+      },
       body: JSON.stringify({
         type: "payment",
         agentName: info.name,

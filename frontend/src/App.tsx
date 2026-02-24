@@ -105,7 +105,10 @@ function App() {
       try {
         const resp = await fetch(`${API_BASE}/api/slash`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer bitagent-demo-2026",
+          },
           body: JSON.stringify({ agentId, amount, reason: "poor service quality" }),
         });
         const result = await resp.json();
