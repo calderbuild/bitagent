@@ -204,6 +204,44 @@ bitagent/
       data/                # Mock 数据（API 不可用时降级）
 ```
 
+## x402 支付时序
+
+```mermaid
+sequenceDiagram
+    participant C as Client
+    participant A as Agent (CodeAuditor)
+    participant F as x402 Facilitator
+    participant G as GOAT Network
+
+    C->>A: POST /api/audit {code: "..."}
+    A-->>C: 402 Payment Required {paymentRequirements}
+    C->>F: POST /verify {paymentPayload}
+    F->>G: verifyTypedData (EIP-712)
+    G-->>F: valid
+    F-->>C: {isValid: true}
+    C->>A: POST /api/audit + x402 payment header
+    A->>F: POST /settle {paymentPayload}
+    F->>G: transferWithAuthorization (EIP-3009)
+    G-->>F: tx confirmed
+    F-->>A: {success: true}
+    A-->>C: {audit: "Reentrancy vulnerability found..."}
+    C->>G: giveFeedback(agentId, 80, "quality")
+```
+
+## 测试
+
+```bash
+# Agent 测试（TrustScore 单元测试，20 个用例）
+npx vitest run
+
+# 合约测试（MockUSDC + StakingVault + ERC-8004，57 个用例）
+cd contracts && npx hardhat test
+
+# TypeScript 类型检查
+cd agent && npx tsc --noEmit
+cd frontend && npx tsc --noEmit
+```
+
 ## 竞品对比
 
 | 项目 | 链 | x402 | ERC-8004 | BTC 担保 | 信任机制 |
