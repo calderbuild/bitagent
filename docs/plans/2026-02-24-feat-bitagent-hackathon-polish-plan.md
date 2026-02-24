@@ -148,11 +148,11 @@ demo_day: 2026-03-18
 **文件**：`agent/src/client/index.ts`
 
 **改动**：
-- [ ] 在 `SERVICE_CONFIGS` 数组末尾添加 Orchestrator 配置
-- [ ] ServiceType 联合类型增加 `"orchestrate"`
-- [ ] 构造一个复合任务 body，如："Audit this contract for reentrancy, then translate the summary to Chinese"
-- [ ] 更新结束日志为 "all 4 paid calls"
-- [ ] 输出清晰展示调用链：Client -> Orchestrator -> CodeAuditor -> TranslateBot
+- [x] 在 `SERVICE_CONFIGS` 数组末尾添加 Orchestrator 配置
+- [x] ServiceType 联合类型增加 `"orchestrate"`
+- [x] 构造一个复合任务 body，如："Audit this contract for reentrancy, then translate the summary to Chinese"
+- [x] 更新结束日志为 "all 4 paid calls"
+- [x] 输出清晰展示调用链：Client -> Orchestrator -> CodeAuditor -> TranslateBot
 
 **验收**：`run-demo.sh` 输出显示 4 个 Agent 的付费调用 + 链上反馈
 
@@ -211,8 +211,8 @@ type AsyncState =
 **文件**：`frontend/src/components/NetworkStatsBar.tsx`
 
 **改动**：
-- [ ] 在 NetworkStatsBar 添加连接状态：绿色 "LIVE" 或橙色 "DEMO MODE"
-- [ ] `connected` 状态已在 App.tsx 中存在，传递给 NetworkStatsBar 即可
+- [x] 在 NetworkStatsBar 添加连接状态：绿色 "LIVE" 或橙色 "DEMO MODE"
+- [x] `connected` 状态已在 App.tsx 中存在，传递给 NetworkStatsBar 即可
 
 **验收**：连接后端时显示 "LIVE"，断开后显示 "DEMO MODE"
 

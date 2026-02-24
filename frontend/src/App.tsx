@@ -170,7 +170,7 @@ function App() {
 
   return (
     <div className="app">
-      <NetworkStatsBar stats={stats} />
+      <NetworkStatsBar stats={stats} connected={connected} />
 
       <div className="dashboard-grid">
         {/* Agent Registry */}

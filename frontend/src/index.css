@@ -123,7 +123,12 @@ body::after {
 .status-dot--live { background: var(--green); box-shadow: 0 0 8px var(--green); }
 .status-dot--degraded { background: var(--btc-orange); box-shadow: 0 0 8px var(--btc-orange); }
 .status-dot--offline { background: var(--red); box-shadow: 0 0 8px var(--red); }
+.status-dot--demo { background: var(--btc-orange); box-shadow: 0 0 8px var(--btc-orange); }
 @keyframes pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+.connection-badge { display: inline-flex; align-items: center; font-family: var(--font-mono); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; padding: 4px 10px; border-radius: 4px; }
+.connection-badge--live { color: var(--green); background: rgba(0, 230, 118, 0.08); border: 1px solid rgba(0, 230, 118, 0.2); }
+.connection-badge--demo { color: var(--btc-orange); background: rgba(247, 147, 26, 0.08); border: 1px solid rgba(247, 147, 26, 0.2); }
 
 /* Panel */
 .panel { background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }

@@ -3,14 +3,22 @@ import type { NetworkStats } from "../types";
 
 interface Props {
   stats: NetworkStats;
+  connected: boolean;
 }
 
-export function NetworkStatsBar({ stats }: Props) {
+export function NetworkStatsBar({ stats, connected }: Props) {
   return (
     <div className="stats-bar">
       <div className="stats-bar__logo">
         <span className="stats-bar__logo-text">BitAgent</span>
         <span className="stats-bar__logo-sub">GOAT Network</span>
+      </div>
+
+      <div className="stat-item">
+        <span className={`connection-badge connection-badge--${connected ? "live" : "demo"}`}>
+          <span className={`status-dot status-dot--${connected ? "live" : "demo"}`} />
+          {connected ? "LIVE" : "DEMO MODE"}
+        </span>
       </div>
 
       <div className="stat-item">

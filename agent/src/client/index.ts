@@ -26,7 +26,7 @@ if (!globalThis.crypto) {
   });
 }
 
-type ServiceType = "audit" | "translate" | "analyze";
+type ServiceType = "audit" | "translate" | "analyze" | "orchestrate";
 
 interface AgentInfo {
   agentId: number;
@@ -105,6 +105,15 @@ contract Vault {
         { day: "Wed", calls: 61, successRate: 0.98 },
       ],
       question: "Which day had the best performance and why?",
+    }),
+  },
+  {
+    label: "Orchestrator",
+    serviceType: "orchestrate",
+    infoUrl: "http://localhost:3004/info",
+    endpoint: "http://localhost:3004/api/orchestrate",
+    buildBody: () => ({
+      task: "Audit this Solidity code for reentrancy vulnerabilities, then translate the audit summary to Chinese:\n\ncontract Vault {\n  mapping(address => uint256) public balances;\n  function withdraw(uint256 amount) external {\n    require(balances[msg.sender] >= amount);\n    (bool ok, ) = msg.sender.call{value: amount}(\"\");\n    require(ok);\n    balances[msg.sender] -= amount;\n  }\n}",
     }),
   },
 ];
@@ -333,7 +342,8 @@ export async function runDemoClient(): Promise<void> {
     });
   }
 
-  console.log("\n=== Demo complete: all 3 paid calls + on-chain feedback submitted ===");
+  console.log("\n=== Demo complete: all 4 paid calls + on-chain feedback submitted ===");
+  console.log("[Client] Call chain: Client -> CodeAuditor, TranslateBot, DataAnalyst, Orchestrator -> [sub-agents]");
 }
 
 runDemoClient().catch((error) => {
