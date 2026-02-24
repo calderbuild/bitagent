@@ -227,12 +227,12 @@ type AsyncState =
 **文件**：`agent/src/trust/score.test.ts`（新建）
 
 **改动**：
-- [ ] 测试各 tier 边界：diamond >= 80, gold >= 60, silver >= 40, bronze >= 20
-- [ ] 测试零质押 Agent 的分数
-- [ ] 测试高质押低信誉 vs 低质押高信誉的加权区别
-- [ ] 测试 slash 后分数下降
-- [ ] 测试极端值（超大质押、零反馈、大量 slash）
-- [ ] 测试 demo 级质押量（0.000005-0.000008 BTC）产生合理分数（Phase 0.1 修复后）
+- [x] 测试各 tier 边界：diamond >= 80, gold >= 60, silver >= 40, bronze >= 20
+- [x] 测试零质押 Agent 的分数
+- [x] 测试高质押低信誉 vs 低质押高信誉的加权区别
+- [x] 测试 slash 后分数下降
+- [x] 测试极端值（超大质押、零反馈、大量 slash）
+- [x] 测试 demo 级质押量（0.000005-0.000008 BTC）产生合理分数（Phase 0.1 修复后）
 
 **验收**：`npx vitest run agent/src/trust/score.test.ts` 全绿
 
@@ -282,7 +282,7 @@ const contract = Factory.attach(await proxy.getAddress());
 **文件**：`scripts/run-demo.sh`
 
 **改动**：
-- [ ] 将所有 `python3 -c "import json..."` 替换为 `node -e "..."`
+- [x] 将所有 `python3 -c "import json..."` 替换为 `node -e "..."`
 
 **验收**：卸载 python3（或 rename）后 `run-demo.sh` 仍正常运行
 

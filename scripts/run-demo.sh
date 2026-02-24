@@ -51,9 +51,9 @@ echo "[2/4] Network stats from GOAT Testnet3..."
 STATS=$(curl -sf "http://localhost:4022/api/stats" 2>/dev/null || echo '{}')
 AGENTS_JSON=$(curl -sf "http://localhost:4022/api/agents" 2>/dev/null || echo '[]')
 
-BLOCK=$(echo "$STATS" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('blockHeight','?'))" 2>/dev/null || echo "?")
-TOTAL_STAKED=$(echo "$STATS" | python3 -c "import sys,json; d=json.load(sys.stdin); print(f\"{d.get('totalBtcStaked',0):.6f}\")" 2>/dev/null || echo "?")
-AGENT_COUNT=$(echo "$AGENTS_JSON" | python3 -c "import sys,json; print(len(json.load(sys.stdin)))" 2>/dev/null || echo "?")
+BLOCK=$(echo "$STATS" | node -e "let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>{try{console.log(JSON.parse(d).blockHeight||'?')}catch{console.log('?')}})" 2>/dev/null || echo "?")
+TOTAL_STAKED=$(echo "$STATS" | node -e "let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>{try{console.log(Number(JSON.parse(d).totalBtcStaked||0).toFixed(6))}catch{console.log('?')}})" 2>/dev/null || echo "?")
+AGENT_COUNT=$(echo "$AGENTS_JSON" | node -e "let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>{try{console.log(JSON.parse(d).length)}catch{console.log('?')}})" 2>/dev/null || echo "?")
 
 echo "  Block Height:    $BLOCK"
 echo "  Registered Agents: $AGENT_COUNT"
@@ -62,13 +62,19 @@ echo ""
 
 # Step 3: Show agent registry
 echo "[3/4] Agent Registry (on-chain identities + BTC stakes)..."
-echo "$AGENTS_JSON" | python3 -c "
-import sys, json
-agents = json.load(sys.stdin)
-for a in agents:
-    status = 'ONLINE' if a.get('online') else 'OFFLINE'
-    print(f\"  #{a['agentId']} {a['name']:15s} | Trust: {a.get('trustScore',0):5.1f} ({a.get('tier','?'):8s}) | Stake: {a.get('btcStake',0):.6f} BTC | Rep: {a.get('reputationScore',50):.0f}/100 | {status}\")
-" 2>/dev/null || echo "  (could not parse agent data)"
+echo "$AGENTS_JSON" | node -e "
+let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>{
+  try{const agents=JSON.parse(d);
+  agents.forEach(a=>{
+    const status=a.online?'ONLINE':'OFFLINE';
+    const name=(a.name||'').padEnd(15);
+    const trust=(a.trustScore||0).toFixed(1).padStart(5);
+    const tier=(a.tier||'?').padEnd(8);
+    const stake=(a.btcStake||0).toFixed(6);
+    const rep=Math.round(a.reputationScore||50);
+    console.log('  #'+a.agentId+' '+name+' | Trust: '+trust+' ('+tier+') | Stake: '+stake+' BTC | Rep: '+rep+'/100 | '+status);
+  })}catch{console.log('  (could not parse agent data)')}
+});" 2>/dev/null || echo "  (could not parse agent data)"
 echo ""
 
 # Step 4: Run x402 paid calls + on-chain feedback
@@ -87,11 +93,12 @@ echo ""
 echo "  Dashboard: http://localhost:5173"
 echo ""
 echo "  What just happened:"
-echo "    1. Client discovered 3 AI agents via /info endpoints"
+echo "    1. Client discovered 4 AI agents via /info endpoints"
 echo "    2. Paid each agent via x402 (HTTP 402 + EIP-3009 USDC transfer)"
-echo "    3. Received AI service results (audit, translate, analyze)"
-echo "    4. Submitted ERC-8004 reputation feedback on-chain"
-echo "    5. Dashboard updated with real-time trust scores"
+echo "    3. Received AI service results (audit, translate, analyze, orchestrate)"
+echo "    4. Orchestrator routed compound task to sub-agents (Agent-to-Agent payment)"
+echo "    5. Submitted ERC-8004 reputation feedback on-chain"
+echo "    6. Dashboard updated with real-time trust scores"
 echo ""
 echo "  Try the slash demo in the dashboard to see trust score decrease!"
 echo "========================================"
