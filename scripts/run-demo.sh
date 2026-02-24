@@ -15,39 +15,76 @@ if [[ -d "$HOME/.nvm/versions/node/v22.22.0" ]]; then
   export PATH="$HOME/.nvm/versions/node/v22.22.0/bin:$PATH"
 fi
 
+# Colors
+GREEN='\033[0;32m'
+ORANGE='\033[0;33m'
+BLUE='\033[0;34m'
+RED='\033[0;31m'
+BOLD='\033[1m'
+DIM='\033[2m'
+NC='\033[0m'
+
+info()  { echo -e "${BLUE}$*${NC}"; }
+ok()    { echo -e "${GREEN}$*${NC}"; }
+chain() { echo -e "${ORANGE}$*${NC}"; }
+section() {
+  echo ""
+  echo -e "${BOLD}${ORANGE}$*${NC}"
+  echo -e "${DIM}$(printf '%.0s-' {1..60})${NC}"
+}
+
 echo ""
-echo "========================================"
-echo "  BitAgent Demo -- BTC-Secured AI Agent Economy"
-echo "  GOAT Network (Bitcoin L2) | Chain ID 48816"
-echo "========================================"
+echo -e "${BOLD}${ORANGE}"
+echo "  ____  _ _   _                    _   "
+echo " | __ )(_) |_/ \\   __ _  ___ _ __ | |_ "
+echo " |  _ \\| | __/ _ \\ / _\` |/ _ \\ '_ \\| __|"
+echo " | |_) | | |/ ___ \\ (_| |  __/ | | | |_ "
+echo " |____/|_|\\__/   \\_\\__, |\\___|_| |_|\\__|"
+echo "                   |___/                 "
+echo -e "${NC}"
+echo -e "${BOLD}  BTC-Secured AI Agent Economy on GOAT Network${NC}"
+echo -e "${DIM}  Bitcoin L2 | Chain ID 48816 | x402 Payments | ERC-8004 Identity${NC}"
 echo ""
 
-# Step 1: Health check
-echo "[1/4] Checking services..."
+# ── Problem Statement ──
+info "  The Problem: AI agents have a trust cold-start paradox."
+info "  They need reputation to get clients, but need clients to build reputation."
+info "  BitAgent solves this with BTC staking as cryptoeconomic trust."
+echo ""
+sleep 1
+
+# ── Step 1: Health Check ──
+section "  [1/4] Service Discovery"
+info "  Checking that all 5 services are live on GOAT Testnet3..."
+echo ""
+
 SERVICES=("Facilitator:4022" "CodeAuditor:3001" "TranslateBot:3002" "DataAnalyst:3003" "Orchestrator:3004")
 all_ok=true
 for svc in "${SERVICES[@]}"; do
   name="${svc%%:*}"
   port="${svc##*:}"
   if curl -sf "http://localhost:$port/health" > /dev/null 2>&1; then
-    echo "  [OK] $name on :$port"
+    ok "  [OK] $name on :$port"
   else
-    echo "  [--] $name on :$port (not responding)"
+    echo -e "  ${RED}[--] $name on :$port (not responding)${NC}"
     all_ok=false
   fi
 done
 
 if [[ "$all_ok" != "true" ]]; then
   echo ""
-  echo "  Some services are not running. Start them first:"
+  echo -e "  ${RED}Some services are not running. Start them first:${NC}"
   echo "    bash scripts/start-all.sh"
-  echo ""
   exit 1
 fi
 echo ""
+sleep 1
 
-# Step 2: Show on-chain stats
-echo "[2/4] Network stats from GOAT Testnet3..."
+# ── Step 2: On-chain Stats ──
+section "  [2/4] On-Chain Network State"
+info "  Reading live data from GOAT Testnet3 blockchain..."
+echo ""
+
 STATS=$(curl -sf "http://localhost:4022/api/stats" 2>/dev/null || echo '{}')
 AGENTS_JSON=$(curl -sf "http://localhost:4022/api/agents" 2>/dev/null || echo '[]')
 
@@ -55,50 +92,69 @@ BLOCK=$(echo "$STATS" | node -e "let d='';process.stdin.on('data',c=>d+=c);proce
 TOTAL_STAKED=$(echo "$STATS" | node -e "let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>{try{console.log(Number(JSON.parse(d).totalBtcStaked||0).toFixed(6))}catch{console.log('?')}})" 2>/dev/null || echo "?")
 AGENT_COUNT=$(echo "$AGENTS_JSON" | node -e "let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>{try{console.log(JSON.parse(d).length)}catch{console.log('?')}})" 2>/dev/null || echo "?")
 
-echo "  Block Height:    $BLOCK"
-echo "  Registered Agents: $AGENT_COUNT"
-echo "  Total BTC Staked:  $TOTAL_STAKED BTC"
+chain "  Block Height:      $BLOCK"
+chain "  Registered Agents: $AGENT_COUNT"
+chain "  Total BTC Staked:  $TOTAL_STAKED BTC"
+echo ""
+echo -e "  ${DIM}Explorer: https://explorer.testnet3.goat.network/block/$BLOCK${NC}"
+echo ""
+sleep 1
+
+# ── Step 3: Agent Registry ──
+section "  [3/4] Agent Registry (ERC-8004 Identities)"
+info "  Each agent has an on-chain ERC-721 identity token."
+info "  Trust Score = BTC Stake (40%) + Reputation (30%) + Feedback (15%) + Stability (15%)"
 echo ""
 
-# Step 3: Show agent registry
-echo "[3/4] Agent Registry (on-chain identities + BTC stakes)..."
 echo "$AGENTS_JSON" | node -e "
 let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>{
   try{const agents=JSON.parse(d);
   agents.forEach(a=>{
-    const status=a.online?'ONLINE':'OFFLINE';
+    const status=a.online?'\x1b[32mONLINE\x1b[0m':'\x1b[31mOFFLINE\x1b[0m';
     const name=(a.name||'').padEnd(15);
     const trust=(a.trustScore||0).toFixed(1).padStart(5);
-    const tier=(a.tier||'?').padEnd(8);
+    const tier=(a.tier||'?').padEnd(10);
     const stake=(a.btcStake||0).toFixed(6);
     const rep=Math.round(a.reputationScore||50);
-    console.log('  #'+a.agentId+' '+name+' | Trust: '+trust+' ('+tier+') | Stake: '+stake+' BTC | Rep: '+rep+'/100 | '+status);
+    console.log('  #'+a.agentId+' '+name+' | Trust: \x1b[33m'+trust+'\x1b[0m ('+tier+') | Stake: \x1b[33m'+stake+' BTC\x1b[0m | Rep: '+rep+'/100 | '+status);
   })}catch{console.log('  (could not parse agent data)')}
 });" 2>/dev/null || echo "  (could not parse agent data)"
 echo ""
+sleep 1
 
-# Step 4: Run x402 paid calls + on-chain feedback
-echo "[4/4] Running x402 client demo (paid AI service calls + on-chain feedback)..."
-echo "  This calls each agent via HTTP 402 micropayments and submits"
-echo "  ERC-8004 reputation feedback on-chain after each call."
+# ── Step 4: x402 Client Demo ──
+section "  [4/4] x402 Paid AI Service Calls"
+info "  Now running the full payment flow:"
+info "  1. Client discovers agents via /info endpoints"
+info "  2. Pays each agent via HTTP 402 (x402 protocol + EIP-3009 USDC)"
+info "  3. Receives AI service results"
+info "  4. Orchestrator routes compound task to sub-agents (Agent-to-Agent payment)"
+info "  5. Submits ERC-8004 reputation feedback on-chain after each call"
 echo ""
+echo -e "  ${DIM}This is the core innovation: AI agents pay each other with BTC-backed trust.${NC}"
+echo ""
+sleep 1
 
 (cd "$ROOT_DIR/agent" && npx tsx src/client/index.ts)
 
+# ── Summary ──
 echo ""
-echo "========================================"
+echo -e "${BOLD}${GREEN}"
+echo "  ========================================"
 echo "  Demo Complete"
-echo "========================================"
+echo "  ========================================"
+echo -e "${NC}"
 echo ""
-echo "  Dashboard: http://localhost:5173"
+echo -e "  ${BOLD}Dashboard:${NC} http://localhost:5173"
+echo -e "  ${BOLD}Explorer:${NC}  https://explorer.testnet3.goat.network"
 echo ""
-echo "  What just happened:"
-echo "    1. Client discovered 4 AI agents via /info endpoints"
-echo "    2. Paid each agent via x402 (HTTP 402 + EIP-3009 USDC transfer)"
-echo "    3. Received AI service results (audit, translate, analyze, orchestrate)"
-echo "    4. Orchestrator routed compound task to sub-agents (Agent-to-Agent payment)"
-echo "    5. Submitted ERC-8004 reputation feedback on-chain"
-echo "    6. Dashboard updated with real-time trust scores"
+echo -e "  ${BOLD}What makes BitAgent unique:${NC}"
+echo -e "  ${GREEN}*${NC} BTC stake = 40% of trust score (only possible on Bitcoin L2)"
+echo -e "  ${GREEN}*${NC} x402 micropayments: AI agents pay each other per-call"
+echo -e "  ${GREEN}*${NC} ERC-8004 on-chain identity + reputation"
+echo -e "  ${GREEN}*${NC} Slash mechanism: misbehaving agents lose staked BTC"
+echo -e "  ${GREEN}*${NC} Orchestrator: Agent-to-Agent paid routing (the strongest demo point)"
 echo ""
-echo "  Try the slash demo in the dashboard to see trust score decrease!"
-echo "========================================"
+echo -e "  ${ORANGE}Next: Open the dashboard and try the slash demo!${NC}"
+echo -e "  ${DIM}Watch the trust score decrease in real-time when an agent is slashed.${NC}"
+echo ""

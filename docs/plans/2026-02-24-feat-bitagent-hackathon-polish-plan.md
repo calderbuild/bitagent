@@ -339,11 +339,11 @@ type SignerInput = Omit<FacilitatorEvmSigner, "getAddresses"> & { address: `0x${
 **文件**：`scripts/run-demo.sh`
 
 **改动**：
-- [ ] 在每个步骤前加入清晰的叙事说明（2-3 行，解释"这一步在做什么、为什么重要"）
-- [ ] 使用 `read -p` 或 `sleep` 在关键步骤间暂停，让评委消化
-- [ ] 增加颜色输出（绿色=成功，橙色=链上操作，蓝色=说明文字）
-- [ ] 在结尾输出项目亮点总结和 Explorer/Dashboard 链接
-- [ ] 重点叙事 Orchestrator 多跳调用链，这是最强 demo 点
+- [x] 在每个步骤前加入清晰的叙事说明（2-3 行，解释"这一步在做什么、为什么重要"）
+- [x] 使用 `read -p` 或 `sleep` 在关键步骤间暂停，让评委消化
+- [x] 增加颜色输出（绿色=成功，橙色=链上操作，蓝色=说明文字）
+- [x] 在结尾输出项目亮点总结和 Explorer/Dashboard 链接
+- [x] 重点叙事 Orchestrator 多跳调用链，这是最强 demo 点
 
 **验收**：非技术人员能跟着终端输出理解完整流程
 
