@@ -254,10 +254,10 @@ type AsyncState =
 **文件**：`contracts/test/IdentityRegistry.test.ts`（新建）, `contracts/test/ReputationRegistry.test.ts`（新建）
 
 **改动**：
-- [ ] IdentityRegistry 测试：register、setAgentURI、ownerOf、转移后钱包重置
-- [ ] ReputationRegistry 测试：giveFeedback、getSummary、getClients、revokeFeedback
-- [ ] UUPS 升级测试：状态在升级后保持、非 owner 无法升级
-- [ ] 边界条件：valueDecimals > 18 拒绝、value > 1e38 拒绝、空 clientAddresses 拒绝
+- [x] IdentityRegistry 测试：register、setAgentURI、ownerOf、转移后钱包重置
+- [x] ReputationRegistry 测试：giveFeedback、getSummary、getClients、revokeFeedback
+- [x] UUPS 升级测试：状态在升级后保持、非 owner 无法升级
+- [x] 边界条件：valueDecimals > 18 拒绝、value > 1e38 拒绝、空 clientAddresses 拒绝
 
 **验收**：`npx hardhat test` 全绿，测试覆盖两个核心合约
 
@@ -297,9 +297,9 @@ const contract = Factory.attach(await proxy.getAddress());
 **文件**：`agent/src/facilitator/server.ts`
 
 **改动**：
-- [ ] 为 `combinedClient` 方法参数定义合适的类型（从 `@x402/evm` 导入 `FacilitatorEvmSigner`）
-- [ ] `/api/agents` 响应对象定义 `AgentInfoResponse` 接口替代 `any[]`
-- [ ] `/api/stats` 响应定义类型
+- [x] 为 `combinedClient` 方法参数定义合适的类型（从 `@x402/evm` 导入 `FacilitatorEvmSigner`）
+- [x] `/api/agents` 响应对象定义 `AgentInfoResponse` 接口替代 `any[]`
+- [x] `/api/stats` 响应定义类型
 
 **验收**：`npx tsc --noEmit` 无 error
 
@@ -323,8 +323,8 @@ type SignerInput = Omit<FacilitatorEvmSigner, "getAddresses"> & { address: `0x${
 **改动**：
 - [ ] 提取 `core/x402-client.ts`：crypto polyfill + x402 client 创建（从 orchestrator.ts 和 client/index.ts 去重，~30 行）
 - [ ] 提取 `core/config.ts` 中的 `AGENT_REGISTRY`：集中管理 agent 端口/端点/类型（从 server.ts、orchestrator.ts、client/index.ts 三处去重）
-- [ ] 统一 error-to-string 工具函数：`toErrorMessage` vs `ensureStringError`，保留一个放到 `core/utils.ts`
-- [ ] 提取 `frontend/src/utils/tier.ts`：tier color mapping（从 AgentCard.tsx 和 TrustLeaderboard.tsx 去重）
+- [x] 统一 error-to-string 工具函数：`toErrorMessage` vs `ensureStringError`，保留一个放到 `core/utils.ts`
+- [x] 提取 `frontend/src/utils/tier.ts`：tier color mapping（从 AgentCard.tsx 和 TrustLeaderboard.tsx 去重）
 
 **验收**：`npx tsc --noEmit` 无 error，所有功能不变
 

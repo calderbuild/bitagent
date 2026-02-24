@@ -13,6 +13,7 @@ import {
   REPUTATION_REGISTRY_ADDRESS,
   REPUTATION_REGISTRY_ABI,
 } from "../core/config.js";
+import { toErrorMessage } from "../core/utils.js";
 
 const GOAT_NETWORK_CAIP = `eip155:${GOAT_CHAIN_ID}` as `${string}:${string}`;
 const FACILITATOR_BASE = "http://localhost:4022";
@@ -122,11 +123,6 @@ function formatMs(ms: number): string {
   return `${ms}ms`;
 }
 
-function ensureStringError(error: unknown): string {
-  if (error instanceof Error) return error.message;
-  return String(error);
-}
-
 async function timedStep<T>(label: string, fn: () => Promise<T>): Promise<T> {
   const startedAt = Date.now();
   console.log(`\n[Client] ▶ ${label}`);
@@ -135,7 +131,7 @@ async function timedStep<T>(label: string, fn: () => Promise<T>): Promise<T> {
     console.log(`[Client] ✓ ${label} (${formatMs(Date.now() - startedAt)})`);
     return result;
   } catch (error) {
-    console.error(`[Client] ✗ ${label} (${formatMs(Date.now() - startedAt)}): ${ensureStringError(error)}`);
+    console.error(`[Client] ✗ ${label} (${formatMs(Date.now() - startedAt)}): ${toErrorMessage(error)}`);
     throw error;
   }
 }
@@ -347,6 +343,6 @@ export async function runDemoClient(): Promise<void> {
 }
 
 runDemoClient().catch((error) => {
-  console.error("[Client] Demo failed:", ensureStringError(error));
+  console.error("[Client] Demo failed:", toErrorMessage(error));
   process.exitCode = 1;
 });

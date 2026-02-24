@@ -1,18 +1,11 @@
 import { Shield, Code, Languages, BarChart3, Network, Zap } from "lucide-react";
-import type { Agent, TrustTier } from "../types";
+import type { Agent } from "../types";
+import { tierColor } from "../utils/tier";
 
 interface Props {
   agent: Agent;
   onTry?: (agent: Agent) => void;
 }
-
-const tierColors: Record<TrustTier, string> = {
-  diamond: "var(--tier-diamond)",
-  gold: "var(--tier-gold)",
-  silver: "var(--tier-silver)",
-  bronze: "var(--tier-bronze)",
-  unverified: "var(--tier-unverified)",
-};
 
 const serviceIcons: Record<string, typeof Code> = {
   audit: Code,
@@ -22,7 +15,7 @@ const serviceIcons: Record<string, typeof Code> = {
 };
 
 export function AgentCard({ agent, onTry }: Props) {
-  const color = tierColors[agent.tier];
+  const color = tierColor(agent.tier);
   const ServiceIcon = serviceIcons[agent.serviceType] || Shield;
 
   return (

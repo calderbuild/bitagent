@@ -67,15 +67,22 @@ export async function startFacilitator() {
     transport: http(GOAT_RPC),
   });
 
-  // Combine public + wallet client into a FacilitatorEvmSigner
+  // Combine public + wallet client into a FacilitatorEvmSigner-compatible object
+  type ReadContractArgs = { address: `0x${string}`; abi: readonly unknown[]; functionName: string; args?: readonly unknown[] };
+  type VerifyTypedDataArgs = { address: `0x${string}`; domain: Record<string, unknown>; types: Record<string, unknown>; primaryType: string; message: Record<string, unknown>; signature: `0x${string}` };
+  type WriteContractArgs = { address: `0x${string}`; abi: readonly unknown[]; functionName: string; args: readonly unknown[] };
+  type SendTxArgs = { to: `0x${string}`; data: `0x${string}` };
+  type WaitReceiptArgs = { hash: `0x${string}` };
+  type GetCodeArgs = { address: `0x${string}` };
+
   const combinedClient = {
     address: account.address,
-    readContract: (args: any) => publicClient.readContract(args),
-    verifyTypedData: (args: any) => publicClient.verifyTypedData(args),
-    writeContract: (args: any) => walletClient.writeContract(args),
-    sendTransaction: (args: any) => walletClient.sendTransaction(args),
-    waitForTransactionReceipt: (args: any) => publicClient.waitForTransactionReceipt(args),
-    getCode: (args: any) => publicClient.getCode(args),
+    readContract: (args: ReadContractArgs) => publicClient.readContract(args as Parameters<typeof publicClient.readContract>[0]),
+    verifyTypedData: (args: VerifyTypedDataArgs) => publicClient.verifyTypedData(args as Parameters<typeof publicClient.verifyTypedData>[0]),
+    writeContract: (args: WriteContractArgs) => walletClient.writeContract(args as Parameters<typeof walletClient.writeContract>[0]),
+    sendTransaction: (args: SendTxArgs) => walletClient.sendTransaction(args),
+    waitForTransactionReceipt: (args: WaitReceiptArgs) => publicClient.waitForTransactionReceipt(args),
+    getCode: (args: GetCodeArgs) => publicClient.getCode(args),
   };
 
   const signer = toFacilitatorEvmSigner(combinedClient);
@@ -321,9 +328,10 @@ export async function startFacilitator() {
         effectiveStake,
         slashedAmount: amount,
       });
-    } catch (error: any) {
-      console.error("[Facilitator] Slash error:", error.message);
-      res.status(500).json({ error: error.message });
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : String(error);
+      console.error("[Facilitator] Slash error:", msg);
+      res.status(500).json({ error: msg });
     }
   });
 
@@ -395,12 +403,13 @@ export async function startFacilitator() {
       const { paymentPayload, paymentRequirements } = req.body;
       const result = await facilitator.verify(paymentPayload, paymentRequirements);
       res.json(result);
-    } catch (error: any) {
-      console.error("[Facilitator] Verify error:", error.message);
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : String(error);
+      console.error("[Facilitator] Verify error:", msg);
       res.status(400).json({
         isValid: false,
         invalidReason: "VERIFICATION_ERROR",
-        invalidMessage: error.message,
+        invalidMessage: msg,
       });
     }
   });
@@ -410,12 +419,13 @@ export async function startFacilitator() {
       const { paymentPayload, paymentRequirements } = req.body;
       const result = await facilitator.settle(paymentPayload, paymentRequirements);
       res.json(result);
-    } catch (error: any) {
-      console.error("[Facilitator] Settle error:", error.message);
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : String(error);
+      console.error("[Facilitator] Settle error:", msg);
       res.status(400).json({
         success: false,
         errorReason: "SETTLEMENT_ERROR",
-        errorMessage: error.message,
+        errorMessage: msg,
         transaction: "",
         network: GOAT_NETWORK,
       });

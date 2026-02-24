@@ -13,6 +13,7 @@ import {
   MOCK_USDC_ABI,
   getWallet,
 } from "../core/config.js";
+import { toErrorMessage } from "../core/utils.js";
 
 const GOAT_NETWORK_CAIP = `eip155:${GOAT_CHAIN_ID}` as `${string}:${string}`;
 const FACILITATOR_BASE = "http://localhost:4022";
@@ -66,11 +67,6 @@ const SERVICE_MAP: Record<RoutedAgent, ServiceMapItem> = {
 };
 
 const ROUTER_SYSTEM_PROMPT = `You route tasks to specialized AI agents. Output JSON with keys: agents (array of 'audit'|'translate'|'analyze'), payload (object to send to each). Only include agents relevant to the task.`;
-
-function toErrorMessage(error: unknown): string {
-  if (error instanceof Error) return error.message;
-  return String(error);
-}
 
 function extractJsonObject(text: string): string {
   const fenced = text.match(/```json\s*([\s\S]*?)```/i);

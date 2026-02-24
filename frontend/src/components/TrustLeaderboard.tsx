@@ -1,5 +1,6 @@
 import { Trophy } from "lucide-react";
 import type { Agent } from "../types";
+import { tierColor } from "../utils/tier";
 
 interface Props {
   agents: Agent[];
@@ -62,13 +63,3 @@ export function TrustLeaderboard({ agents }: Props) {
   );
 }
 
-function tierColor(tier: string): string {
-  const map: Record<string, string> = {
-    diamond: "var(--tier-diamond)",
-    gold: "var(--tier-gold)",
-    silver: "var(--tier-silver)",
-    bronze: "var(--tier-bronze)",
-    unverified: "var(--tier-unverified)",
-  };
-  return map[tier] || "var(--text-primary)";
-}
