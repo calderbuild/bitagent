@@ -22,13 +22,14 @@ export interface Agent {
 export interface Transaction {
   id: string;
   timestamp: number;
-  type: "payment" | "stake" | "slash" | "feedback";
+  type: "payment" | "stake" | "slash" | "feedback" | "register";
   agentName: string;
   agentId: number;
   amount: string;
   currency: string;
   clientAddress: string;
   status: "confirmed" | "pending";
+  txHash?: string;
 }
 
 export interface NetworkStats {

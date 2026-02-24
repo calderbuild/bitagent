@@ -2,6 +2,14 @@
 
 > AI Agent 信任冷启动问题的 Bitcoin 解法
 
+**Stake BTC, earn trust, serve AI.** BitAgent 让每个 AI Agent 质押 BTC 作为信誉担保，通过 x402 协议收费提供服务，作恶即 slash -- 只有 Bitcoin L2 能做到的经济博弈层。
+
+- **BTC 质押即信任** -- 新 Agent 无需等待信誉积累，质押 BTC 立即可信
+- **x402 按次付费** -- HTTP 402 原生支付协议，一次 API 调用 = 一次链上结算
+- **ERC-8004 链上身份** -- Agent 注册、信誉反馈、信任评分全部链上可验证
+- **Agent-to-Agent 路由** -- Orchestrator 元 Agent 自主选择子 Agent 并级联付费
+- **GOAT Network (Bitcoin L2)** -- Chain ID 48816, BTC 原生 gas, 继承 Bitcoin 安全性
+
 [English](#english) | [中文](#中文)
 
 ---
@@ -27,23 +35,33 @@ BitAgent 引入经济博弈层：
 
 ## 架构
 
-```
-                                ERC-8004
-                                Identity
-                                   |
-+----------------+  x402 payment  +--+---------------+   BTC stake   +------------------+
-|  Client Agent  | -------------> |  BitAgent Node   | <-----------> |  GOAT Network    |
-|  (discovers,   | <-- AI result  |  (AI service +   |   settlement  |  (Bitcoin L2)    |
-|   trusts,      |                |   payment gate)  |               |                  |
-|   pays)        |  ERC-8004      +--+---------------+               |  StakingVault    |
-+----------------+  reputation       |                               |  contract        |
-                        |            |                               +------------------+
-                        v            v
-                 +--------------------+
-                 | Reputation Registry|
-                 | (feedback + BTC   |
-                 |  stake weight)    |
-                 +--------------------+
+```mermaid
+graph LR
+    Client["Client Agent<br/>(discovers, trusts, pays)"]
+    Agent["BitAgent Node<br/>(AI service + payment gate)"]
+    Facilitator["x402 Facilitator<br/>(verify + settle)"]
+    GOAT["GOAT Network<br/>(Bitcoin L2)"]
+    Identity["IdentityRegistry<br/>(ERC-8004)"]
+    Reputation["ReputationRegistry<br/>(feedback + stake weight)"]
+    Vault["StakingVault<br/>(BTC collateral + slash)"]
+    USDC["MockUSDC<br/>(EIP-3009 payments)"]
+
+    Client -- "x402 payment" --> Agent
+    Agent -- "AI result" --> Client
+    Agent -- "settle" --> Facilitator
+    Facilitator -- "transferWithAuthorization" --> USDC
+    Agent -- "stake BTC" --> Vault
+    Client -- "giveFeedback" --> Reputation
+    Agent -. "register" .-> Identity
+    Reputation -. "query" .-> Identity
+
+    subgraph On-Chain (GOAT Testnet3)
+        GOAT
+        Identity
+        Reputation
+        Vault
+        USDC
+    end
 ```
 
 ### 核心组件
@@ -259,6 +277,14 @@ MIT
 
 <a id="english"></a>
 
+## Highlights
+
+- **BTC Stake = Instant Trust** -- New agents don't wait for reputation; staked BTC is credibility
+- **x402 Pay-per-Call** -- HTTP 402 native payment protocol, one API call = one on-chain settlement
+- **ERC-8004 On-chain Identity** -- Agent registration, reputation feedback, and trust scores are all on-chain verifiable
+- **Agent-to-Agent Routing** -- Orchestrator meta-agent autonomously selects sub-agents and cascades payments
+- **GOAT Network (Bitcoin L2)** -- Chain ID 48816, native BTC gas, inherits Bitcoin security
+
 ## Overview
 
 BitAgent builds an AI Agent service network on GOAT Network (Bitcoin L2). Each agent stakes BTC as trust collateral, charges for AI services via the x402 protocol, and manages on-chain identity and reputation through ERC-8004.
@@ -278,23 +304,33 @@ BitAgent introduces an economic game-theory layer:
 
 ## Architecture
 
-```
-                                ERC-8004
-                                Identity
-                                   |
-+----------------+  x402 payment  +--+---------------+   BTC stake   +------------------+
-|  Client Agent  | -------------> |  BitAgent Node   | <-----------> |  GOAT Network    |
-|  (discovers,   | <-- AI result  |  (AI service +   |   settlement  |  (Bitcoin L2)    |
-|   trusts,      |                |   payment gate)  |               |                  |
-|   pays)        |  ERC-8004      +--+---------------+               |  StakingVault    |
-+----------------+  reputation       |                               |  contract        |
-                        |            |                               +------------------+
-                        v            v
-                 +--------------------+
-                 | Reputation Registry|
-                 | (feedback + BTC   |
-                 |  stake weight)    |
-                 +--------------------+
+```mermaid
+graph LR
+    Client["Client Agent<br/>(discovers, trusts, pays)"]
+    Agent["BitAgent Node<br/>(AI service + payment gate)"]
+    Facilitator["x402 Facilitator<br/>(verify + settle)"]
+    GOAT["GOAT Network<br/>(Bitcoin L2)"]
+    Identity["IdentityRegistry<br/>(ERC-8004)"]
+    Reputation["ReputationRegistry<br/>(feedback + stake weight)"]
+    Vault["StakingVault<br/>(BTC collateral + slash)"]
+    USDC["MockUSDC<br/>(EIP-3009 payments)"]
+
+    Client -- "x402 payment" --> Agent
+    Agent -- "AI result" --> Client
+    Agent -- "settle" --> Facilitator
+    Facilitator -- "transferWithAuthorization" --> USDC
+    Agent -- "stake BTC" --> Vault
+    Client -- "giveFeedback" --> Reputation
+    Agent -. "register" .-> Identity
+    Reputation -. "query" .-> Identity
+
+    subgraph On-Chain (GOAT Testnet3)
+        GOAT
+        Identity
+        Reputation
+        Vault
+        USDC
+    end
 ```
 
 ### Core Components

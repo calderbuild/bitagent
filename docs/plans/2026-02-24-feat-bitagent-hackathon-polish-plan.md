@@ -321,8 +321,8 @@ type SignerInput = Omit<FacilitatorEvmSigner, "getAddresses"> & { address: `0x${
 **文件**：多个文件
 
 **改动**：
-- [ ] 提取 `core/x402-client.ts`：crypto polyfill + x402 client 创建（从 orchestrator.ts 和 client/index.ts 去重，~30 行）
-- [ ] 提取 `core/config.ts` 中的 `AGENT_REGISTRY`：集中管理 agent 端口/端点/类型（从 server.ts、orchestrator.ts、client/index.ts 三处去重）
+- [x] 提取 `core/crypto-polyfill.ts`：crypto polyfill（从 orchestrator.ts 和 client/index.ts 去重）
+- [x] 提取 `core/agents.ts` 中的 `AGENT_REGISTRY`：集中管理 agent 端口/端点/类型（从 server.ts、orchestrator.ts、client/index.ts 三处去重）
 - [x] 统一 error-to-string 工具函数：`toErrorMessage` vs `ensureStringError`，保留一个放到 `core/utils.ts`
 - [x] 提取 `frontend/src/utils/tier.ts`：tier color mapping（从 AgentCard.tsx 和 TrustLeaderboard.tsx 去重）
 
@@ -379,8 +379,8 @@ type SignerInput = Omit<FacilitatorEvmSigner, "getAddresses"> & { address: `0x${
 **改动**：
 - [ ] 确认 Google Forms 报名已提交
 - [ ] 准备 30 秒 elevator pitch（中英文各一版）
-- [ ] 在 README 顶部添加一句话项目描述 + 核心亮点 bullet points（方便评委快速理解）
-- [ ] 确保 .env.example 文档齐全，评委能一键跑起来
+- [x] 在 README 顶部添加一句话项目描述 + 核心亮点 bullet points（方便评委快速理解）
+- [x] 确保 .env.example 文档齐全，评委能一键跑起来
 - [ ] 提前录制一个 3 分钟 demo 视频作为后备（用 asciinema 录制终端 + 屏幕录制 dashboard）
 - [ ] Rotate LLM API key 和所有 testnet private keys（提交前）
 
@@ -417,15 +417,15 @@ type SignerInput = Omit<FacilitatorEvmSigner, "getAddresses"> & { address: `0x${
 **文件**：`frontend/src/components/TransactionFeed.tsx`
 
 **改动**：
-- [ ] 点击交易条目展开详情（tx hash + Explorer 链接 + 完整参数）
+- [x] 点击交易条目展开详情（tx hash + Explorer 链接 + 完整参数）
 
 ### 5.3 README 添加架构示意图（Mermaid）
 
 **文件**：`README.md`
 
 **改动**：
-- [ ] 用 Mermaid 绘制更直观的系统流程图，替代 ASCII art
-- [ ] 添加 x402 支付流时序图
+- [x] 用 Mermaid 绘制更直观的系统流程图，替代 ASCII art
+- [x] 添加 x402 支付流时序图
 
 ---
 

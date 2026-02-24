@@ -215,6 +215,12 @@ body::after {
 .tx-item__type--feedback { background: var(--blue-dim); color: var(--blue); }
 .tx-item__detail { color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .tx-item__amount { color: var(--text-primary); font-weight: 600; text-align: right; }
+.tx-detail { padding: 6px 12px 10px 56px; background: var(--bg-deep); border-bottom: 1px solid var(--border); display: flex; flex-direction: column; gap: 4px; }
+.tx-detail__row { display: flex; align-items: center; gap: 8px; font-family: var(--font-mono); font-size: 0.65rem; }
+.tx-detail__label { color: var(--text-dim); width: 60px; flex-shrink: 0; text-transform: uppercase; letter-spacing: 0.06em; }
+.tx-detail__value { color: var(--text-secondary); }
+.tx-detail__link { color: var(--btc-orange); text-decoration: none; display: inline-flex; align-items: center; }
+.tx-detail__link:hover { text-decoration: underline; }
 
 /* Leaderboard */
 .leaderboard { width: 100%; }

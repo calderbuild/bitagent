@@ -17,6 +17,7 @@ import {
   REPUTATION_REGISTRY_ABI,
 } from "../core/config.js";
 import { calculateTrustScore } from "../trust/score.js";
+import { AGENT_PORTS } from "../core/agents.js";
 
 const goatTestnet3 = defineChain({
   id: GOAT_CHAIN_ID,
@@ -115,8 +116,7 @@ export async function startFacilitator() {
   const provider = new ethers.JsonRpcProvider(GOAT_RPC, GOAT_CHAIN_ID);
   const deployerWallet = new ethers.Wallet(privateKey, provider);
 
-  // Known agent service ports
-  const AGENT_PORTS = [3001, 3002, 3003, 3004];
+  // Known agent service ports (from centralized registry)
 
   // Event log for transaction feed
   const eventLog: FeedEvent[] = [];

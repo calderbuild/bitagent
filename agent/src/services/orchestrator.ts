@@ -1,5 +1,5 @@
 import { ethers } from "ethers";
-import { webcrypto } from "node:crypto";
+import "../core/crypto-polyfill.js";
 import { privateKeyToAccount } from "viem/accounts";
 import { x402Client } from "@x402/core/client";
 import { ExactEvmScheme } from "@x402/evm/exact/client";
@@ -14,17 +14,11 @@ import {
   getWallet,
 } from "../core/config.js";
 import { toErrorMessage } from "../core/utils.js";
+import { agentInfoUrl, agentEndpoint } from "../core/agents.js";
 
 const GOAT_NETWORK_CAIP = `eip155:${GOAT_CHAIN_ID}` as `${string}:${string}`;
 const FACILITATOR_BASE = "http://localhost:4022";
 const ONE_USDC = 1_000_000n; // 6 decimals
-
-if (!globalThis.crypto) {
-  Object.defineProperty(globalThis, "crypto", {
-    value: webcrypto,
-    configurable: true,
-  });
-}
 
 type RoutedAgent = "audit" | "translate" | "analyze";
 
@@ -40,31 +34,11 @@ interface ServiceInfo {
   service: string;
 }
 
-interface ServiceMapItem {
-  infoUrl: string;
-  endpoint: string;
-}
-
 interface SubCallResult {
   agent: RoutedAgent;
   endpoint: string;
   response: unknown;
 }
-
-const SERVICE_MAP: Record<RoutedAgent, ServiceMapItem> = {
-  audit: {
-    infoUrl: "http://localhost:3001/info",
-    endpoint: "http://localhost:3001/api/audit",
-  },
-  translate: {
-    infoUrl: "http://localhost:3002/info",
-    endpoint: "http://localhost:3002/api/translate",
-  },
-  analyze: {
-    infoUrl: "http://localhost:3003/info",
-    endpoint: "http://localhost:3003/api/analyze",
-  },
-};
 
 const ROUTER_SYSTEM_PROMPT = `You route tasks to specialized AI agents. Output JSON with keys: agents (array of 'audit'|'translate'|'analyze'), payload (object to send to each). Only include agents relevant to the task.`;
 
@@ -149,7 +123,7 @@ class OrchestratorCaller {
   }
 
   async fetchServiceInfo(agent: RoutedAgent): Promise<ServiceInfo> {
-    const infoUrl = SERVICE_MAP[agent].infoUrl;
+    const infoUrl = agentInfoUrl(agent);
     const resp = await fetch(infoUrl);
     if (!resp.ok) {
       throw new Error(`Failed to fetch service info ${infoUrl}: ${resp.status}`);
@@ -158,7 +132,7 @@ class OrchestratorCaller {
   }
 
   async callAgent(agent: RoutedAgent, payload: Record<string, unknown>, task: string): Promise<SubCallResult> {
-    const endpoint = SERVICE_MAP[agent].endpoint;
+    const endpoint = agentEndpoint(agent);
     const requestBody = this.toServicePayload(agent, payload, task);
 
     const resp = await this.paidFetch(endpoint, {

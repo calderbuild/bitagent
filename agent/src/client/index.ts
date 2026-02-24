@@ -1,5 +1,5 @@
 import { ethers } from "ethers";
-import { webcrypto } from "node:crypto";
+import "../core/crypto-polyfill.js";
 import { privateKeyToAccount } from "viem/accounts";
 import { x402Client } from "@x402/core/client";
 import { ExactEvmScheme } from "@x402/evm/exact/client";
@@ -14,20 +14,12 @@ import {
   REPUTATION_REGISTRY_ABI,
 } from "../core/config.js";
 import { toErrorMessage } from "../core/utils.js";
+import { agentInfoUrl, agentEndpoint, type ServiceType } from "../core/agents.js";
 
 const GOAT_NETWORK_CAIP = `eip155:${GOAT_CHAIN_ID}` as `${string}:${string}`;
 const FACILITATOR_BASE = "http://localhost:4022";
 const ONE_USDC = 1_000_000n; // 6 decimals
 const FEEDBACK_SCORE = 80n;
-
-if (!globalThis.crypto) {
-  Object.defineProperty(globalThis, "crypto", {
-    value: webcrypto,
-    configurable: true,
-  });
-}
-
-type ServiceType = "audit" | "translate" | "analyze" | "orchestrate";
 
 interface AgentInfo {
   agentId: number;
@@ -60,8 +52,8 @@ const SERVICE_CONFIGS: ServiceConfig[] = [
   {
     label: "CodeAuditor",
     serviceType: "audit",
-    infoUrl: "http://localhost:3001/info",
-    endpoint: "http://localhost:3001/api/audit",
+    infoUrl: agentInfoUrl("audit"),
+    endpoint: agentEndpoint("audit"),
     buildBody: () => ({
       code: `// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
@@ -85,8 +77,8 @@ contract Vault {
   {
     label: "TranslateBot",
     serviceType: "translate",
-    infoUrl: "http://localhost:3002/info",
-    endpoint: "http://localhost:3002/api/translate",
+    infoUrl: agentInfoUrl("translate"),
+    endpoint: agentEndpoint("translate"),
     buildBody: () => ({
       text: "Bitcoin-backed AI agents provide crypto-economic trust from day one.",
       from: "en",
@@ -97,8 +89,8 @@ contract Vault {
   {
     label: "DataAnalyst",
     serviceType: "analyze",
-    infoUrl: "http://localhost:3003/info",
-    endpoint: "http://localhost:3003/api/analyze",
+    infoUrl: agentInfoUrl("analyze"),
+    endpoint: agentEndpoint("analyze"),
     buildBody: () => ({
       data: [
         { day: "Mon", calls: 42, successRate: 0.97 },
@@ -111,8 +103,8 @@ contract Vault {
   {
     label: "Orchestrator",
     serviceType: "orchestrate",
-    infoUrl: "http://localhost:3004/info",
-    endpoint: "http://localhost:3004/api/orchestrate",
+    infoUrl: agentInfoUrl("orchestrate"),
+    endpoint: agentEndpoint("orchestrate"),
     buildBody: () => ({
       task: "Audit this Solidity code for reentrancy vulnerabilities, then translate the audit summary to Chinese:\n\ncontract Vault {\n  mapping(address => uint256) public balances;\n  function withdraw(uint256 amount) external {\n    require(balances[msg.sender] >= amount);\n    (bool ok, ) = msg.sender.call{value: amount}(\"\");\n    require(ok);\n    balances[msg.sender] -= amount;\n  }\n}",
     }),
