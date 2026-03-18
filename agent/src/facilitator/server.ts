@@ -7,8 +7,12 @@ import { ExactEvmScheme } from "@x402/evm/exact/facilitator";
 import { toFacilitatorEvmSigner } from "@x402/evm";
 import { ethers } from "ethers";
 import {
-  GOAT_RPC,
-  GOAT_CHAIN_ID,
+  CHAIN_RPC,
+  CHAIN_ID,
+  NETWORK_CAIP,
+  EXPLORER_URL,
+  NETWORK_NAME,
+  NATIVE_SYMBOL,
   STAKING_VAULT_ADDRESS,
   STAKING_VAULT_ABI,
   IDENTITY_REGISTRY_ADDRESS,
@@ -19,19 +23,17 @@ import {
 import { calculateTrustScore } from "../trust/score.js";
 import { AGENT_PORTS } from "../core/agents.js";
 
-const goatTestnet3 = defineChain({
-  id: GOAT_CHAIN_ID,
-  name: "GOAT Testnet3",
-  nativeCurrency: { name: "Bitcoin", symbol: "BTC", decimals: 18 },
+const targetChain = defineChain({
+  id: CHAIN_ID,
+  name: NETWORK_NAME,
+  nativeCurrency: { name: NATIVE_SYMBOL, symbol: NATIVE_SYMBOL, decimals: 18 },
   rpcUrls: {
-    default: { http: [GOAT_RPC] },
+    default: { http: [CHAIN_RPC] },
   },
   blockExplorers: {
-    default: { name: "GOAT Explorer", url: "https://explorer.testnet3.goat.network" },
+    default: { name: "Explorer", url: EXPLORER_URL },
   },
 });
-
-const GOAT_NETWORK = `eip155:${GOAT_CHAIN_ID}` as const;
 const PORT = parseInt(process.env.FACILITATOR_PORT || "4022");
 
 type EventType = "payment" | "stake" | "slash" | "feedback" | "register";
@@ -58,14 +60,14 @@ export async function startFacilitator() {
   const account = privateKeyToAccount(privateKey as `0x${string}`);
 
   const publicClient = createPublicClient({
-    chain: goatTestnet3,
-    transport: http(GOAT_RPC),
+    chain: targetChain,
+    transport: http(CHAIN_RPC),
   });
 
   const walletClient = createWalletClient({
     account,
-    chain: goatTestnet3,
-    transport: http(GOAT_RPC),
+    chain: targetChain,
+    transport: http(CHAIN_RPC),
   });
 
   // Combine public + wallet client into a FacilitatorEvmSigner-compatible object
@@ -90,7 +92,7 @@ export async function startFacilitator() {
   const evmScheme = new ExactEvmScheme(signer);
 
   const facilitator = new x402Facilitator();
-  facilitator.register(GOAT_NETWORK, evmScheme);
+  facilitator.register(NETWORK_CAIP as `${string}:${string}`, evmScheme);
 
   const ADMIN_TOKEN = process.env.ADMIN_TOKEN || "bitagent-demo-2026";
   const ALLOWED_ORIGINS = ["http://localhost:5173", "http://localhost:4173", "http://127.0.0.1:5173"];
@@ -113,7 +115,7 @@ export async function startFacilitator() {
   app.use(express.json());
 
   // Chain provider for aggregation APIs
-  const provider = new ethers.JsonRpcProvider(GOAT_RPC, GOAT_CHAIN_ID);
+  const provider = new ethers.JsonRpcProvider(CHAIN_RPC, CHAIN_ID);
   const deployerWallet = new ethers.Wallet(privateKey, provider);
 
   // Known agent service ports (from centralized registry)
@@ -268,7 +270,7 @@ export async function startFacilitator() {
         totalTransactions: eventLog.length,
         networkStatus: "live" as const,
         blockHeight: blockNumber,
-        chainId: GOAT_CHAIN_ID,
+        chainId: CHAIN_ID,
       };
 
       statsCache = { data, ts: Date.now() };
@@ -316,8 +318,8 @@ export async function startFacilitator() {
         type: "slash",
         agentName: `Agent #${agentId}`,
         agentId,
-        amount: `${amount} BTC`,
-        currency: "BTC",
+        amount: `${amount} ${NATIVE_SYMBOL}`,
+        currency: NATIVE_SYMBOL,
         clientAddress: "SlashOracle",
         status: "confirmed",
         txHash: receipt?.hash,
@@ -428,7 +430,7 @@ export async function startFacilitator() {
         errorReason: "SETTLEMENT_ERROR",
         errorMessage: msg,
         transaction: "",
-        network: GOAT_NETWORK,
+        network: NETWORK_CAIP,
       });
     }
   });
@@ -436,7 +438,7 @@ export async function startFacilitator() {
   app.get("/health", (_req, res) => {
     res.json({
       status: "ok",
-      network: GOAT_NETWORK,
+      network: NETWORK_CAIP,
       facilitator: account.address,
     });
   });
@@ -444,7 +446,7 @@ export async function startFacilitator() {
   return new Promise<void>((resolve) => {
     app.listen(PORT, () => {
       console.log(`[Facilitator] Running on port ${PORT}`);
-      console.log(`[Facilitator] Network: ${GOAT_NETWORK}`);
+      console.log(`[Facilitator] Network: ${NETWORK_CAIP}`);
       console.log(`[Facilitator] Wallet: ${account.address}`);
       resolve();
     });

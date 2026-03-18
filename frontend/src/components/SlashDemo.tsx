@@ -35,7 +35,7 @@ export function SlashDemo({ agents, onSlash }: Props) {
     const newEntry: SlashLogEntry = {
       id: `slash-${Date.now()}`,
       timestamp: Date.now(),
-      message: `SLASHED ${target.name} (Agent #${target.agentId}) -- ${slashAmt.toFixed(4)} BTC -- Reason: "poor service quality"`,
+      message: `SLASHED ${target.name} (Agent #${target.agentId}) -- ${slashAmt.toFixed(4)} ETH -- Reason: "poor service quality"`,
       type: "slash",
     };
 
@@ -70,7 +70,7 @@ export function SlashDemo({ agents, onSlash }: Props) {
                 {target?.name || "No agent selected"}
               </div>
               <div className="slash-demo__target-id">
-                Agent #{targetId} &middot; Stake: {target?.btcStake.toFixed(6) || "0"} BTC &middot; Trust: {target?.trustScore.toFixed(1) || "0"}
+                Agent #{targetId} &middot; Stake: {target?.btcStake.toFixed(6) || "0"} ETH &middot; Trust: {target?.trustScore.toFixed(1) || "0"}
               </div>
             </div>
             <div className="slash-demo__controls">
@@ -90,7 +90,7 @@ export function SlashDemo({ agents, onSlash }: Props) {
                 type="text"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
-                placeholder="BTC amount"
+                placeholder="ETH amount"
               />
               <button
                 className="slash-btn"

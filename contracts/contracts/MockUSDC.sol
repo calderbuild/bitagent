@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
 
 /**
  * @title MockUSDC
- * @notice ERC20 + EIP-3009 (transferWithAuthorization) for x402 payments on GOAT Testnet3.
+ * @notice ERC20 + EIP-3009 (transferWithAuthorization) for x402 payments on Base Sepolia.
  * @dev Implements the subset of Circle's FiatTokenV2 needed by x402 exact scheme:
  *      - EIP-712 typed structured data signing
  *      - transferWithAuthorization (EIP-3009)

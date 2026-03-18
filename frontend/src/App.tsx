@@ -123,8 +123,8 @@ function App() {
             type: "slash",
             agentName: agent?.name || `Agent #${agentId}`,
             agentId,
-            amount: `${amount.toFixed(4)} BTC`,
-            currency: "BTC",
+            amount: `${amount.toFixed(4)} ETH`,
+            currency: "ETH",
             clientAddress: "SlashOracle",
             status: "confirmed",
           };
@@ -161,8 +161,8 @@ function App() {
         type: "slash",
         agentName: agent.name,
         agentId,
-        amount: `${amount.toFixed(4)} BTC`,
-        currency: "BTC",
+        amount: `${amount.toFixed(4)} ETH`,
+        currency: "ETH",
         clientAddress: "SlashOracle",
         status: "confirmed",
       };

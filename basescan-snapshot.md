@@ -1,0 +1,1235 @@
+- generic [ref=e1]:
+  - generic [ref=e3]:
+    - generic [ref=e5]: Base Sepolia Testnet
+    - generic [ref=e6]:
+      - generic [ref=e8]:
+        - generic "Search" [ref=e9]:
+          - generic [ref=e10]: 
+        - textbox "Search by Address / Txn Hash / Block / Token" [ref=e11]
+        - text:  
+        - generic [ref=e13]: /
+      - generic [ref=e14]:
+        - button "" [ref=e15] [cursor=pointer]:
+          - generic [ref=e17]: 
+        - text:     
+      - button "Base Sepolia Network Logo" [ref=e19] [cursor=pointer]:
+        - img "Base Sepolia Network Logo" [ref=e20]
+  - banner [ref=e21]:
+    - navigation [ref=e22]:
+      - generic [ref=e23]:
+        - link "BaseScan" [ref=e24] [cursor=pointer]:
+          - /url: /
+          - img "BaseScan Logo" [ref=e25]
+        - list [ref=e27]:
+          - listitem [ref=e28]:
+            - link "Home" [ref=e29] [cursor=pointer]:
+              - /url: /
+          - listitem [ref=e30]:
+            - button "Blockchain " [ref=e31] [cursor=pointer]
+            - list:
+              - listitem:
+                - link "Transactions":
+                  - /url: /txs
+              - listitem:
+                - link "Latest L1→L2 Transactions":
+                  - /url: /txsEnqueued
+              - listitem:
+                - link "Latest L2→L1 Transactions":
+                  - /url: /txsExit
+              - listitem:
+                - link "Contract Internal Transactions":
+                  - /url: /txsInternal
+              - listitem:
+                - link "AA Transactions Beta":
+                  - /url: /txsAA
+                  - text: AA Transactions
+                  - generic: Beta
+              - listitem:
+                - link "EIP-7702 Authorizations Beta":
+                  - /url: /txnAuthList
+                  - text: EIP-7702 Authorizations
+                  - generic: Beta
+              - listitem:
+                - separator
+              - listitem:
+                - link "View Blocks":
+                  - /url: /blocks
+              - listitem:
+                - link "View Batches":
+                  - /url: /batches
+              - listitem:
+                - link "View L1 Transaction Batches":
+                  - /url: /batches
+              - listitem:
+                - link "View L1 State Batches":
+                  - /url: /statebatches
+              - listitem:
+                - separator
+              - listitem:
+                - link "Top Accounts":
+                  - /url: /accounts
+              - listitem:
+                - link "Verified Contracts":
+                  - /url: /contractsVerified
+          - listitem [ref=e32]:
+            - button "Tokens " [ref=e33] [cursor=pointer]
+            - list:
+              - listitem:
+                - link "View ERC-20 Transfers":
+                  - /url: /tokentxns
+          - listitem [ref=e34]:
+            - button "NFTs " [ref=e35] [cursor=pointer]
+            - list:
+              - listitem:
+                - link "Latest Transfers":
+                  - /url: /nft-transfers
+              - listitem:
+                - link "Latest Mints":
+                  - /url: /nft-latest-mints
+          - listitem [ref=e36]:
+            - button "More " [ref=e37] [cursor=pointer]
+            - generic:
+              - generic:
+                - generic:
+                  - heading "Converters" [level=6]
+                  - list:
+                    - listitem:
+                      - link "Unit Converter":
+                        - /url: /unitconverter
+                    - listitem:
+                      - link "Base64 Converter":
+                        - /url: /base64converter
+                    - listitem:
+                      - link "Block & Date Converter":
+                        - /url: /blockdateconverter
+                    - listitem:
+                      - link "UTF-8 Converter":
+                        - /url: /utf8converter
+                    - listitem:
+                      - link "Method ID Converter":
+                        - /url: /methodidconverter
+                - generic:
+                  - heading "Developers" [level=6]
+                  - list:
+                    - listitem:
+                      - link "API Documentation":
+                        - /url: https://docs.etherscan.io/etherscan-v2
+                    - listitem:
+                      - link "Verify Contract":
+                        - /url: /verifyContract
+                    - listitem:
+                      - link "Contract Diff Checker":
+                        - /url: /contractdiffchecker
+                    - listitem:
+                      - link "Similar Contract Search":
+                        - /url: /find-similar-contracts
+                    - listitem:
+                      - link "Vyper Online Compiler":
+                        - /url: /vyper
+                    - listitem:
+                      - link "Bytecode to Opcode":
+                        - /url: /opcode-tool
+                    - listitem:
+                      - link "Broadcast Transaction":
+                        - /url: /pushTx
+                - generic:
+                  - heading "Tools & Services" [level=6]
+                  - list:
+                    - listitem:
+                      - link "CSV Export":
+                        - /url: /exportData
+                    - listitem:
+                      - link "Input Data Decoder Beta":
+                        - /url: /inputdatadecoder
+                        - text: Input Data Decoder
+                        - generic: Beta
+                    - listitem:
+                      - link "Account Balance Checker":
+                        - /url: /balancecheck-tool
+                    - listitem:
+                      - link "Token Supply Checker":
+                        - /url: /tokencheck-tool
+                    - listitem:
+                      - link "Token Standard Checker":
+                        - /url: /tokentracker
+          - text:       
+  - main [ref=e38]:
+    - generic [ref=e42]:
+      - heading "Contract" [level=1] [ref=e45]
+      - generic [ref=e46]:
+        - generic [ref=e47]: "0x8004A818BFB912233c491871b3d84c89A494BD9e"
+        - generic [ref=e48]:
+          - link "Copy Address" [ref=e49] [cursor=pointer]:
+            - /url: javascript:;
+            - generic [ref=e50]: 
+          - link "Click to view QR Code" [ref=e52] [cursor=pointer]:
+            - /url: javascript:;
+            - generic [ref=e53]: 
+    - generic [ref=e54]:
+      - generic [ref=e55]:
+        - generic [ref=e56]:
+          - generic [ref=e57]: Source Code (Proxy)
+          - 'link " Implementation:  0x7274e874...45E399c02" [ref=e59] [cursor=pointer]':
+            - /url: /address/0x7274e874ca62410a93bd8bf61c69d8045e399c02
+            - generic [ref=e60]:
+              - generic [ref=e61]: 
+              - generic [ref=e62]: "Implementation:"
+              - generic [ref=e63]: 
+              - generic [ref=e65]: 0x7274e874...45E399c02
+        - generic [ref=e66]:
+          - link "  API" [ref=e67] [cursor=pointer]:
+            - /url: https://docs.etherscan.io/etherscan-v2/api-endpoints/accounts
+            - generic [ref=e68]:  
+            - text: API
+          - generic [ref=e69]:
+            - button " " [ref=e70] [cursor=pointer]:
+              - generic [ref=e71]: 
+              - text: 
+            - text: 
+      - generic [ref=e72]:
+        - generic [ref=e75]:
+          - heading "Overview" [level=3] [ref=e77]
+          - generic [ref=e78]:
+            - heading "ETH Balance" [level=4] [ref=e79]
+            - generic [ref=e81]:
+              - generic [ref=e82]: 
+              - text: 0 ETH
+          - generic [ref=e83]:
+            - heading "Token Holdings" [level=4] [ref=e84]
+            - generic [ref=e86]:
+              - button "$0.00 (1 Tokens) " [ref=e87] [cursor=pointer]:
+                - text: $0.00
+                - generic [ref=e88]: (1 Tokens)
+                - text: 
+              - text:   
+        - generic [ref=e91]:
+          - heading "More Info" [level=3] [ref=e92]
+          - generic [ref=e93]:
+            - heading "Contract Creator" [level=4] [ref=e94]:
+              - generic [ref=e95]: Contract
+              - text: Creator
+            - generic [ref=e96]:
+              - link "0x21df5569...BCBb3b1e5" [ref=e97] [cursor=pointer]:
+                - /url: /address/0x21df5569d53aaf0c5e7982b448ef5a2bcbb3b1e5
+              - link "Copy Address" [ref=e98] [cursor=pointer]:
+                - /url: javascript:;
+                - generic [ref=e99]: 
+              - generic [ref=e100]: "|"
+              - link "58 days ago " [ref=e101] [cursor=pointer]:
+                - /url: /tx/0x35f77ccb80824ab284a4471f0e7d008117248254b57d5714b7e0d132ff597e62
+                - text: 58 days ago
+                - generic [ref=e102]: 
+          - generic [ref=e103]:
+            - heading "Token Tracker" [level=4] [ref=e104]:
+              - generic [ref=e105]: Token
+              - text: Tracker
+            - link "AgentIdentity (AGENT)" [ref=e107] [cursor=pointer]:
+              - /url: /token/0x8004A818BFB912233c491871b3d84c89A494BD9e
+              - img [ref=e108]
+              - text: AgentIdentity (AGENT)
+        - generic [ref=e111]:
+          - heading "Multichain Info" [level=3] [ref=e112]
+          - generic [ref=e113]: N/A
+      - tablist [ref=e115]:
+        - tab "Transactions" [ref=e116] [cursor=pointer]
+        - tab "Internal Transactions" [ref=e117] [cursor=pointer]
+        - tab "Token Transfers (ERC-20)" [ref=e118] [cursor=pointer]
+        - tab "Contract " [active] [selected] [ref=e119] [cursor=pointer]:
+          - text: Contract
+          - generic [ref=e120]: 
+        - tab "Events" [ref=e121] [cursor=pointer]
+      - generic [ref=e122]:
+        - text:                                                                                                                                                 
+        - tabpanel "Contract " [ref=e123]:
+          - generic [ref=e124]:
+            - generic [ref=e125]:
+              - tablist [ref=e126]:
+                - tab "Code" [selected] [ref=e127] [cursor=pointer]
+                - tab "Read Contract" [ref=e128] [cursor=pointer]: Read Contract
+                - tab "Write Contract" [ref=e129] [cursor=pointer]: Write Contract
+                - tab "Read as Proxy" [ref=e130] [cursor=pointer]: Read as Proxy
+                - tab "Write as Proxy" [ref=e131] [cursor=pointer]: Write as Proxy
+              - generic [ref=e133]:
+                - generic "Press Enter / Down arrow key to find next and Up arrow key for previous." [ref=e135]: 
+                - generic [ref=e136]:
+                  - textbox "Search Source Code" [ref=e137]
+                  - button "" [ref=e138] [cursor=pointer]:
+                    - generic [ref=e139]: 
+                  - button "" [ref=e140] [cursor=pointer]:
+                    - generic [ref=e141]: 
+            - tabpanel [ref=e142]:
+              - generic [ref=e143]:
+                - heading " Similar Match Source Code  This contract matches the deployed Bytecode of the Source Code for Contract 0x09C088ab...8e8720379 in BNB Smart Chain Mainnet  The constructor portion of the code might be different and could alter the actual behaviour of the contract Solidity Compiler Bugs, click for more info" [level=3] [ref=e146]:
+                  - generic [ref=e147]: 
+                  - strong [ref=e148]: Similar Match Source Code
+                  - generic [ref=e149]:
+                    - generic [ref=e150]:
+                      - generic [ref=e151]:
+                        - generic [ref=e152]: 
+                        - text: This contract matches the
+                        - strong [ref=e153]: deployed Bytecode
+                        - text: of the Source Code for Contract
+                      - link "0x09C088ab...8e8720379" [ref=e154] [cursor=pointer]:
+                        - /url: https://bscscan.com/address/0x09c088abdbc0fb4a1aec024f69d85ba8e8720379#code
+                      - generic [ref=e155]: in BNB Smart Chain Mainnet
+                    - generic [ref=e156]: 
+                    - text: The constructor portion of the code might be different and could alter the actual behaviour of the contract
+                  - link "Solidity Compiler Bugs, click for more info" [ref=e158] [cursor=pointer]:
+                    - /url: "#"
+                    - generic [ref=e159]: 
+                - generic [ref=e160]:
+                  - generic [ref=e161]:
+                    - generic [ref=e162]:
+                      - generic [ref=e163]: "Contract Name:"
+                      - generic [ref=e164]: ERC1967Proxy
+                    - separator [ref=e165]
+                    - generic [ref=e166]:
+                      - generic [ref=e167]: Compiler Version
+                      - generic [ref=e168]: v0.8.24+commit.e11b9ed9
+                  - generic [ref=e169]:
+                    - generic [ref=e170]:
+                      - generic [ref=e171]: "Optimization Enabled:"
+                      - generic [ref=e173]: Yes with 200 runs
+                    - separator [ref=e174]
+                    - generic [ref=e175]:
+                      - generic [ref=e176]: "Other Settings:"
+                      - generic [ref=e178]: shanghai EvmVersion
+              - generic [ref=e179]:
+                - generic [ref=e180]:
+                  - generic [ref=e181]:
+                    - heading " Contract Source Code (Solidity Standard Json-Input format)" [level=4] [ref=e182]:
+                      - generic [ref=e183]: 
+                      - text: Contract Source Code
+                      - generic [ref=e184]:
+                        - text: (Solidity
+                        - link "Standard Json-Input" [ref=e185] [cursor=pointer]:
+                          - /url: https://docs.soliditylang.org/en/latest/using-the-compiler.html#compiler-input-and-output-json-description
+                        - text: format)
+                    - generic [ref=e187]:
+                      - button "More Options " [ref=e188] [cursor=pointer]
+                      - text:   
+                  - generic [ref=e189]:
+                    - generic [ref=e190]: "File 2 of 9 : IERC1967.sol"
+                    - generic [ref=e191]:
+                      - generic [ref=e192]:
+                        - button "Outline " [ref=e193] [cursor=pointer]
+                        - text: 
+                      - link "Copy source code to clipboard" [ref=e194] [cursor=pointer]:
+                        - /url: javascript:;
+                        - generic [ref=e195]: 
+                      - link "Copy Permalink" [ref=e196] [cursor=pointer]:
+                        - /url: javascript:;
+                        - generic [ref=e197]: 
+                      - link "Toggle Fullscreen" [ref=e198] [cursor=pointer]:
+                        - /url: javascript:;
+                        - generic [ref=e199]: 
+                  - generic [ref=e200]:
+                    - textbox [ref=e201]: "\x01\x01"
+                    - generic [ref=e203]:
+                      - generic [ref=e204]: "1"
+                      - generic [ref=e205]: "2"
+                      - generic [ref=e206]: "3"
+                      - generic [ref=e207]: "4"
+                      - generic [ref=e208]: "5"
+                      - generic [ref=e209]: "6"
+                      - generic [ref=e211]: "7"
+                      - generic [ref=e212]: "8"
+                      - generic [ref=e213]: "9"
+                      - generic [ref=e215]: "10"
+                      - generic [ref=e217]: "11"
+                      - generic [ref=e218]: "12"
+                      - generic [ref=e219]: "13"
+                      - generic [ref=e220]: "14"
+                      - generic [ref=e221]: "15"
+                      - generic [ref=e223]: "16"
+                      - generic [ref=e224]: "17"
+                      - generic [ref=e225]: "18"
+                      - generic [ref=e226]: "19"
+                      - generic [ref=e227]: "20"
+                      - generic [ref=e229]: "21"
+                      - generic [ref=e230]: "22"
+                      - generic [ref=e231]: "23"
+                      - generic [ref=e232]: "24"
+                    - generic [ref=e235]:
+                      - generic:
+                        - generic:
+                          - generic: "// SPDX-License-Identifier: MIT"
+                        - generic:
+                          - generic: // OpenZeppelin Contracts (last updated v5.4.0) (interfaces/IERC1967.sol)
+                        - generic:
+                          - generic: pragma solidity >=0.4.11;
+                        - generic:
+                          - generic: /**
+                        - generic:
+                          - generic: "* @dev ERC-1967: Proxy Storage Slots. This interface contains the events defined in the ERC."
+                        - generic:
+                          - generic: "*/"
+                        - generic:
+                          - generic: "interface IERC1967 {"
+                        - generic:
+                          - generic: /**
+                        - generic:
+                          - generic: "* @dev Emitted when the implementation is upgraded."
+                        - generic:
+                          - generic: "*/"
+                        - generic:
+                          - generic: event Upgraded(address indexed implementation);
+                        - generic:
+                          - generic: /**
+                        - generic:
+                          - generic: "* @dev Emitted when the admin account has changed."
+                        - generic:
+                          - generic: "*/"
+                        - generic:
+                          - generic: event AdminChanged(address previousAdmin, address newAdmin);
+                        - generic:
+                          - generic: /**
+                        - generic:
+                          - generic: "* @dev Emitted when the beacon is changed."
+                        - generic:
+                          - generic: "*/"
+                        - generic:
+                          - generic: event BeaconUpgraded(address indexed beacon);
+                        - generic:
+                          - generic: "}"
+                  - generic [ref=e236]:
+                    - generic [ref=e237]: "File 3 of 9 : IBeacon.sol"
+                    - generic [ref=e238]:
+                      - generic [ref=e239]:
+                        - button "Outline " [ref=e240] [cursor=pointer]
+                        - text: 
+                      - link "Copy source code to clipboard" [ref=e241] [cursor=pointer]:
+                        - /url: javascript:;
+                        - generic [ref=e242]: 
+                      - link "Copy Permalink" [ref=e243] [cursor=pointer]:
+                        - /url: javascript:;
+                        - generic [ref=e244]: 
+                      - link "Toggle Fullscreen" [ref=e245] [cursor=pointer]:
+                        - /url: javascript:;
+                        - generic [ref=e246]: 
+                  - generic [ref=e247]:
+                    - textbox [ref=e248]: "\x01\x01"
+                    - generic [ref=e250]:
+                      - generic [ref=e251]: "1"
+                      - generic [ref=e252]: "2"
+                      - generic [ref=e253]: "3"
+                      - generic [ref=e254]: "4"
+                      - generic [ref=e255]: "5"
+                      - generic [ref=e256]: "6"
+                      - generic [ref=e258]: "7"
+                      - generic [ref=e259]: "8"
+                      - generic [ref=e260]: "9"
+                      - generic [ref=e262]: "10"
+                      - generic [ref=e264]: "11"
+                      - generic [ref=e265]: "12"
+                      - generic [ref=e266]: "13"
+                      - generic [ref=e267]: "14"
+                      - generic [ref=e268]: "15"
+                      - generic [ref=e269]: "16"
+                    - generic [ref=e272]:
+                      - generic:
+                        - generic:
+                          - generic: "// SPDX-License-Identifier: MIT"
+                        - generic:
+                          - generic: // OpenZeppelin Contracts (last updated v5.4.0) (proxy/beacon/IBeacon.sol)
+                        - generic:
+                          - generic: pragma solidity >=0.4.16;
+                        - generic:
+                          - generic: /**
+                        - generic:
+                          - generic: "* @dev This is the interface that {BeaconProxy} expects of its beacon."
+                        - generic:
+                          - generic: "*/"
+                        - generic:
+                          - generic: "interface IBeacon {"
+                        - generic:
+                          - generic: /**
+                        - generic:
+                          - generic: "* @dev Must return an address that can be used as a delegate call target."
+                        - generic:
+                          - generic: "*"
+                        - generic:
+                          - generic: "* {UpgradeableBeacon} will check that this address is a contract."
+                        - generic:
+                          - generic: "*/"
+                        - generic:
+                          - generic: function implementation() external view returns (address);
+                        - generic:
+                          - generic: "}"
+                  - generic [ref=e273]:
+                    - generic [ref=e274]: "File 4 of 9 : ERC1967Proxy.sol"
+                    - generic [ref=e275]:
+                      - generic [ref=e276]:
+                        - button "Outline " [ref=e277] [cursor=pointer]
+                        - text: 
+                      - link "Copy source code to clipboard" [ref=e278] [cursor=pointer]:
+                        - /url: javascript:;
+                        - generic [ref=e279]: 
+                      - link "Copy Permalink" [ref=e280] [cursor=pointer]:
+                        - /url: javascript:;
+                        - generic [ref=e281]: 
+                      - link "Toggle Fullscreen" [ref=e282] [cursor=pointer]:
+                        - /url: javascript:;
+                        - generic [ref=e283]: 
+                  - generic [ref=e284]:
+                    - textbox [ref=e285]: "\x01\x01"
+                    - generic [ref=e287]:
+                      - generic [ref=e288]: "1"
+                      - generic [ref=e289]: "2"
+                      - generic [ref=e290]: "3"
+                      - generic [ref=e291]: "4"
+                      - generic [ref=e292]: "5"
+                      - generic [ref=e293]: "6"
+                      - generic [ref=e294]: "7"
+                      - generic [ref=e295]: "8"
+                      - generic [ref=e296]: "9"
+                      - generic [ref=e298]: "10"
+                      - generic [ref=e299]: "11"
+                      - generic [ref=e300]: "12"
+                      - generic [ref=e301]: "13"
+                      - generic [ref=e302]: "14"
+                      - generic [ref=e303]: "15"
+                      - generic [ref=e305]: "16"
+                      - generic [ref=e307]: "17"
+                      - generic [ref=e308]: "18"
+                      - generic [ref=e309]: "19"
+                      - generic [ref=e310]: "20"
+                      - generic [ref=e311]: "21"
+                      - generic [ref=e312]: "22"
+                      - generic [ref=e313]: "23"
+                      - generic [ref=e314]: "24"
+                      - generic [ref=e315]: "25"
+                      - generic [ref=e316]: "26"
+                    - generic [ref=e320]:
+                      - generic:
+                        - generic:
+                          - generic: "// SPDX-License-Identifier: MIT"
+                        - generic:
+                          - generic: // OpenZeppelin Contracts (last updated v5.2.0) (proxy/ERC1967/ERC1967Proxy.sol)
+                        - generic:
+                          - generic: pragma solidity ^0.8.22;
+                        - generic:
+                          - generic: "import {Proxy} from \"../Proxy.sol\";"
+                        - generic:
+                          - generic: "import {ERC1967Utils} from \"./ERC1967Utils.sol\";"
+                        - generic:
+                          - generic: /**
+                        - generic:
+                          - generic: "* @dev This contract implements an upgradeable proxy. It is upgradeable because calls are delegated to an"
+                        - generic:
+                          - generic: "* implementation address that can be changed. This address is stored in storage in the location specified by"
+                        - generic:
+                          - generic: "* https://eips.ethereum.org/EIPS/eip-1967[ERC-1967], so that it doesn't conflict with the storage layout of the"
+                        - generic:
+                          - generic: "* implementation behind the proxy."
+                        - generic:
+                          - generic: "*/"
+                        - generic:
+                          - generic: "contract ERC1967Proxy is Proxy {"
+                        - generic:
+                          - generic: /**
+                        - generic:
+                          - generic: "* @dev Initializes the upgradeable proxy with an initial implementation specified by `implementation`."
+                        - generic:
+                          - generic: "*"
+                        - generic:
+                          - generic: "* If `_data` is nonempty, it's used as data in a delegate call to `implementation`. This will typically be an"
+                        - generic:
+                          - generic: "* encoded function call, and allows initializing the storage of the proxy like a Solidity constructor."
+                        - generic:
+                          - generic: "*"
+                        - generic:
+                          - generic: "* Requirements:"
+                        - generic:
+                          - generic: "*"
+                        - generic:
+                          - generic: "* - If `data` is empty, `msg.value` must be zero."
+                        - generic:
+                          - generic: "*/"
+                        - generic:
+                          - generic: "constructor(address implementation, bytes memory _data) payable {"
+                  - generic [ref=e323]:
+                    - generic [ref=e324]: "File 5 of 9 : ERC1967Utils.sol"
+                    - generic [ref=e325]:
+                      - generic [ref=e326]:
+                        - button "Outline " [ref=e327] [cursor=pointer]
+                        - text: 
+                      - link "Copy source code to clipboard" [ref=e328] [cursor=pointer]:
+                        - /url: javascript:;
+                        - generic [ref=e329]: 
+                      - link "Copy Permalink" [ref=e330] [cursor=pointer]:
+                        - /url: javascript:;
+                        - generic [ref=e331]: 
+                      - link "Toggle Fullscreen" [ref=e332] [cursor=pointer]:
+                        - /url: javascript:;
+                        - generic [ref=e333]: 
+                  - generic [ref=e334]:
+                    - textbox [ref=e335]: "\x01\x01"
+                    - generic [ref=e337]:
+                      - generic [ref=e338]: "1"
+                      - generic [ref=e339]: "2"
+                      - generic [ref=e340]: "3"
+                      - generic [ref=e341]: "4"
+                      - generic [ref=e342]: "5"
+                      - generic [ref=e343]: "6"
+                      - generic [ref=e344]: "7"
+                      - generic [ref=e345]: "8"
+                      - generic [ref=e346]: "9"
+                      - generic [ref=e347]: "10"
+                      - generic [ref=e348]: "11"
+                      - generic [ref=e350]: "12"
+                      - generic [ref=e351]: "13"
+                      - generic [ref=e352]: "14"
+                      - generic [ref=e353]: "15"
+                      - generic [ref=e355]: "16"
+                      - generic [ref=e357]: "17"
+                      - generic [ref=e358]: "18"
+                      - generic [ref=e359]: "19"
+                      - generic [ref=e360]: "20"
+                      - generic [ref=e361]: "21"
+                      - generic [ref=e362]: "22"
+                      - generic [ref=e363]: "23"
+                      - generic [ref=e365]: "24"
+                      - generic [ref=e366]: "25"
+                      - generic [ref=e367]: "26"
+                    - generic [ref=e370]:
+                      - generic:
+                        - generic:
+                          - generic: "// SPDX-License-Identifier: MIT"
+                        - generic:
+                          - generic: // OpenZeppelin Contracts (last updated v5.4.0) (proxy/ERC1967/ERC1967Utils.sol)
+                        - generic:
+                          - generic: pragma solidity ^0.8.21;
+                        - generic:
+                          - generic: "import {IBeacon} from \"../beacon/IBeacon.sol\";"
+                        - generic:
+                          - generic: "import {IERC1967} from \"../../interfaces/IERC1967.sol\";"
+                        - generic:
+                          - generic: "import {Address} from \"../../utils/Address.sol\";"
+                        - generic:
+                          - generic: "import {StorageSlot} from \"../../utils/StorageSlot.sol\";"
+                        - generic:
+                          - generic: /**
+                        - generic:
+                          - generic: "* @dev This library provides getters and event emitting update functions for"
+                        - generic:
+                          - generic: "* https://eips.ethereum.org/EIPS/eip-1967[ERC-1967] slots."
+                        - generic:
+                          - generic: "*/"
+                        - generic:
+                          - generic: "library ERC1967Utils {"
+                        - generic:
+                          - generic: /**
+                        - generic:
+                          - generic: "* @dev Storage slot with the address of the current implementation."
+                        - generic:
+                          - generic: "* This is the keccak-256 hash of \"eip1967.proxy.implementation\" subtracted by 1."
+                        - generic:
+                          - generic: "*/"
+                        - generic:
+                          - generic: // solhint-disable-next-line private-vars-leading-underscore
+                        - generic:
+                          - generic: bytes32 internal constant IMPLEMENTATION_SLOT = 0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc;
+                        - generic:
+                          - generic: /**
+                        - generic:
+                          - generic: "* @dev The `implementation` of the proxy is invalid."
+                        - generic:
+                          - generic: "*/"
+                        - generic:
+                          - generic: error ERC1967InvalidImplementation(address implementation);
+                  - generic [ref=e373]:
+                    - generic [ref=e374]: "File 6 of 9 : Proxy.sol"
+                    - generic [ref=e375]:
+                      - button "Outline " [ref=e377] [cursor=pointer]
+                      - link "Copy source code to clipboard" [ref=e378] [cursor=pointer]:
+                        - /url: javascript:;
+                        - generic [ref=e379]: 
+                      - link "Copy Permalink" [ref=e380] [cursor=pointer]:
+                        - /url: javascript:;
+                        - generic [ref=e381]: 
+                      - link "Toggle Fullscreen" [ref=e382] [cursor=pointer]:
+                        - /url: javascript:;
+                        - generic [ref=e383]: 
+                  - generic [ref=e384]:
+                    - textbox [ref=e385]: "\x01\x01"
+                    - generic [ref=e387]:
+                      - generic [ref=e388]: "1"
+                      - generic [ref=e389]: "2"
+                      - generic [ref=e390]: "3"
+                      - generic [ref=e391]: "4"
+                      - generic [ref=e392]: "5"
+                      - generic [ref=e393]: "6"
+                      - generic [ref=e395]: "7"
+                      - generic [ref=e396]: "8"
+                      - generic [ref=e397]: "9"
+                      - generic [ref=e398]: "10"
+                      - generic [ref=e399]: "11"
+                      - generic [ref=e400]: "12"
+                      - generic [ref=e401]: "13"
+                      - generic [ref=e402]: "14"
+                      - generic [ref=e403]: "15"
+                      - generic [ref=e404]: "16"
+                      - generic [ref=e406]: "17"
+                      - generic [ref=e408]: "18"
+                      - generic [ref=e409]: "19"
+                      - generic [ref=e410]: "20"
+                      - generic [ref=e411]: "21"
+                      - generic [ref=e412]: "22"
+                      - generic [ref=e414]: "23"
+                      - generic [ref=e416]: "24"
+                      - generic [ref=e417]: "25"
+                      - generic [ref=e418]: "26"
+                    - generic [ref=e421]:
+                      - generic:
+                        - generic:
+                          - generic: "// SPDX-License-Identifier: MIT"
+                        - generic:
+                          - generic: // OpenZeppelin Contracts (last updated v5.0.0) (proxy/Proxy.sol)
+                        - generic:
+                          - generic: pragma solidity ^0.8.20;
+                        - generic:
+                          - generic: /**
+                        - generic:
+                          - generic: "* @dev This abstract contract provides a fallback function that delegates all calls to another contract using the EVM"
+                        - generic:
+                          - generic: "* instruction `delegatecall`. We refer to the second contract as the _implementation_ behind the proxy, and it has to"
+                        - generic:
+                          - generic: "* be specified by overriding the virtual {_implementation} function."
+                        - generic:
+                          - generic: "*"
+                        - generic:
+                          - generic: "* Additionally, delegation to the implementation can be triggered manually through the {_fallback} function, or to a"
+                        - generic:
+                          - generic: "* different contract through the {_delegate} function."
+                        - generic:
+                          - generic: "*"
+                        - generic:
+                          - generic: "* The success and return data of the delegated call will be returned back to the caller of the proxy."
+                        - generic:
+                          - generic: "*/"
+                        - generic:
+                          - generic: "abstract contract Proxy {"
+                        - generic:
+                          - generic: /**
+                        - generic:
+                          - generic: "* @dev Delegates the current call to `implementation`."
+                        - generic:
+                          - generic: "*"
+                        - generic:
+                          - generic: "* This function does not return to its internal call site, it will return directly to the external caller."
+                        - generic:
+                          - generic: "*/"
+                        - generic:
+                          - generic: "function _delegate(address implementation) internal virtual {"
+                        - generic:
+                          - generic: "assembly {"
+                        - generic:
+                          - generic: // Copy msg.data. We take full control of memory in this inline assembly
+                        - generic:
+                          - generic: // block because it will not return to Solidity code. We overwrite the
+                        - generic:
+                          - generic: // Solidity scratch pad at memory position 0.
+                  - generic [ref=e424]:
+                    - generic [ref=e425]: "File 7 of 9 : Address.sol"
+                    - generic [ref=e426]:
+                      - generic [ref=e427]:
+                        - button "Outline " [ref=e428] [cursor=pointer]
+                        - text: 
+                      - link "Copy source code to clipboard" [ref=e429] [cursor=pointer]:
+                        - /url: javascript:;
+                        - generic [ref=e430]: 
+                      - link "Copy Permalink" [ref=e431] [cursor=pointer]:
+                        - /url: javascript:;
+                        - generic [ref=e432]: 
+                      - link "Toggle Fullscreen" [ref=e433] [cursor=pointer]:
+                        - /url: javascript:;
+                        - generic [ref=e434]: 
+                  - generic [ref=e435]:
+                    - textbox [ref=e436]: "\x01\x01"
+                    - generic [ref=e438]:
+                      - generic [ref=e439]: "1"
+                      - generic [ref=e440]: "2"
+                      - generic [ref=e441]: "3"
+                      - generic [ref=e442]: "4"
+                      - generic [ref=e443]: "5"
+                      - generic [ref=e444]: "6"
+                      - generic [ref=e445]: "7"
+                      - generic [ref=e446]: "8"
+                      - generic [ref=e448]: "9"
+                      - generic [ref=e449]: "10"
+                      - generic [ref=e450]: "11"
+                      - generic [ref=e452]: "12"
+                      - generic [ref=e454]: "13"
+                      - generic [ref=e455]: "14"
+                      - generic [ref=e456]: "15"
+                      - generic [ref=e457]: "16"
+                      - generic [ref=e458]: "17"
+                      - generic [ref=e460]: "18"
+                      - generic [ref=e461]: "19"
+                      - generic [ref=e462]: "20"
+                      - generic [ref=e463]: "21"
+                      - generic [ref=e464]: "22"
+                      - generic [ref=e465]: "23"
+                      - generic [ref=e466]: "24"
+                      - generic [ref=e467]: "25"
+                      - generic [ref=e468]: "26"
+                    - generic [ref=e471]:
+                      - generic:
+                        - generic:
+                          - generic: "// SPDX-License-Identifier: MIT"
+                        - generic:
+                          - generic: // OpenZeppelin Contracts (last updated v5.4.0) (utils/Address.sol)
+                        - generic:
+                          - generic: pragma solidity ^0.8.20;
+                        - generic:
+                          - generic: "import {Errors} from \"./Errors.sol\";"
+                        - generic:
+                          - generic: /**
+                        - generic:
+                          - generic: "* @dev Collection of functions related to the address type"
+                        - generic:
+                          - generic: "*/"
+                        - generic:
+                          - generic: "library Address {"
+                        - generic:
+                          - generic: /**
+                        - generic:
+                          - generic: "* @dev There's no code at `target` (it is not a contract)."
+                        - generic:
+                          - generic: "*/"
+                        - generic:
+                          - generic: error AddressEmptyCode(address target);
+                        - generic:
+                          - generic: /**
+                        - generic:
+                          - generic: "* @dev Replacement for Solidity's `transfer`: sends `amount` wei to"
+                        - generic:
+                          - generic: "* `recipient`, forwarding all available gas and reverting on errors."
+                        - generic:
+                          - generic: "*"
+                        - generic:
+                          - generic: "* https://eips.ethereum.org/EIPS/eip-1884[EIP1884] increases the gas cost"
+                        - generic:
+                          - generic: "* of certain opcodes, possibly making contracts go over the 2300 gas limit"
+                        - generic:
+                          - generic: "* imposed by `transfer`, making them unable to receive funds via"
+                        - generic:
+                          - generic: "* `transfer`. {sendValue} removes this limitation."
+                        - generic:
+                          - generic: "*"
+                        - generic:
+                          - generic: "* https://consensys.net/diligence/blog/2019/09/stop-using-soliditys-transfer-now/[Learn more]."
+                  - generic [ref=e474]:
+                    - generic [ref=e475]: "File 8 of 9 : Errors.sol"
+                    - generic [ref=e476]:
+                      - generic [ref=e477]:
+                        - button "Outline " [ref=e478] [cursor=pointer]
+                        - text: 
+                      - link "Copy source code to clipboard" [ref=e479] [cursor=pointer]:
+                        - /url: javascript:;
+                        - generic [ref=e480]: 
+                      - link "Copy Permalink" [ref=e481] [cursor=pointer]:
+                        - /url: javascript:;
+                        - generic [ref=e482]: 
+                      - link "Toggle Fullscreen" [ref=e483] [cursor=pointer]:
+                        - /url: javascript:;
+                        - generic [ref=e484]: 
+                  - generic [ref=e485]:
+                    - textbox [ref=e486]: "\x01\x01"
+                    - generic [ref=e488]:
+                      - generic [ref=e489]: "1"
+                      - generic [ref=e490]: "2"
+                      - generic [ref=e491]: "3"
+                      - generic [ref=e492]: "4"
+                      - generic [ref=e493]: "5"
+                      - generic [ref=e494]: "6"
+                      - generic [ref=e496]: "7"
+                      - generic [ref=e497]: "8"
+                      - generic [ref=e498]: "9"
+                      - generic [ref=e499]: "10"
+                      - generic [ref=e500]: "11"
+                      - generic [ref=e501]: "12"
+                      - generic [ref=e502]: "13"
+                      - generic [ref=e503]: "14"
+                      - generic [ref=e505]: "15"
+                      - generic [ref=e507]: "16"
+                      - generic [ref=e508]: "17"
+                      - generic [ref=e509]: "18"
+                      - generic [ref=e510]: "19"
+                      - generic [ref=e511]: "20"
+                      - generic [ref=e513]: "21"
+                      - generic [ref=e514]: "22"
+                      - generic [ref=e515]: "23"
+                      - generic [ref=e516]: "24"
+                      - generic [ref=e517]: "25"
+                      - generic [ref=e519]: "26"
+                    - generic [ref=e522]:
+                      - generic:
+                        - generic:
+                          - generic: "// SPDX-License-Identifier: MIT"
+                        - generic:
+                          - generic: // OpenZeppelin Contracts (last updated v5.1.0) (utils/Errors.sol)
+                        - generic:
+                          - generic: pragma solidity ^0.8.20;
+                        - generic:
+                          - generic: /**
+                        - generic:
+                          - generic: "* @dev Collection of common custom errors used in multiple contracts"
+                        - generic:
+                          - generic: "*"
+                        - generic:
+                          - generic: "* IMPORTANT: Backwards compatibility is not guaranteed in future versions of the library."
+                        - generic:
+                          - generic: "* It is recommended to avoid relying on the error API for critical functionality."
+                        - generic:
+                          - generic: "*"
+                        - generic:
+                          - generic: "* _Available since v5.1._"
+                        - generic:
+                          - generic: "*/"
+                        - generic:
+                          - generic: "library Errors {"
+                        - generic:
+                          - generic: /**
+                        - generic:
+                          - generic: "* @dev The ETH balance of the account is not enough to perform the operation."
+                        - generic:
+                          - generic: "*/"
+                        - generic:
+                          - generic: error InsufficientBalance(uint256 balance, uint256 needed);
+                        - generic:
+                          - generic: /**
+                        - generic:
+                          - generic: "* @dev A call to an address target failed. The target may have reverted."
+                        - generic:
+                          - generic: "*/"
+                        - generic:
+                          - generic: error FailedCall();
+                        - generic:
+                          - generic: /**
+                        - generic:
+                          - generic: "* @dev The deployment failed."
+                  - generic [ref=e525]:
+                    - generic [ref=e526]: "File 9 of 9 : StorageSlot.sol"
+                    - generic [ref=e527]:
+                      - generic [ref=e528]:
+                        - button "Outline " [ref=e529] [cursor=pointer]
+                        - text: 
+                      - link "Copy source code to clipboard" [ref=e530] [cursor=pointer]:
+                        - /url: javascript:;
+                        - generic [ref=e531]: 
+                      - link "Copy Permalink" [ref=e532] [cursor=pointer]:
+                        - /url: javascript:;
+                        - generic [ref=e533]: 
+                      - link "Toggle Fullscreen" [ref=e534] [cursor=pointer]:
+                        - /url: javascript:;
+                        - generic [ref=e535]: 
+                  - generic [ref=e536]:
+                    - textbox [ref=e537]: "\x01\x01"
+                    - generic [ref=e539]:
+                      - generic [ref=e540]: "1"
+                      - generic [ref=e541]: "2"
+                      - generic [ref=e542]: "3"
+                      - generic [ref=e543]: "4"
+                      - generic [ref=e544]: "5"
+                      - generic [ref=e545]: "6"
+                      - generic [ref=e546]: "7"
+                      - generic [ref=e548]: "8"
+                      - generic [ref=e549]: "9"
+                      - generic [ref=e550]: "10"
+                      - generic [ref=e551]: "11"
+                      - generic [ref=e552]: "12"
+                      - generic [ref=e553]: "13"
+                      - generic [ref=e554]: "14"
+                      - generic [ref=e555]: "15"
+                      - generic [ref=e556]: "16"
+                      - generic [ref=e557]: "17"
+                      - generic [ref=e559]: "18"
+                      - generic [ref=e560]: "19"
+                      - generic [ref=e561]: "20"
+                      - generic [ref=e562]: "21"
+                      - generic [ref=e564]: "22"
+                      - generic [ref=e565]: "23"
+                      - generic [ref=e566]: "24"
+                      - generic [ref=e567]: "25"
+                      - generic [ref=e569]: "26"
+                    - generic [ref=e572]:
+                      - generic:
+                        - generic:
+                          - generic: "// SPDX-License-Identifier: MIT"
+                        - generic:
+                          - generic: // OpenZeppelin Contracts (last updated v5.1.0) (utils/StorageSlot.sol)
+                        - generic:
+                          - generic: // This file was procedurally generated from scripts/generate/templates/StorageSlot.js.
+                        - generic:
+                          - generic: pragma solidity ^0.8.20;
+                        - generic:
+                          - generic: /**
+                        - generic:
+                          - generic: "* @dev Library for reading and writing primitive types to specific storage slots."
+                        - generic:
+                          - generic: "*"
+                        - generic:
+                          - generic: "* Storage slots are often used to avoid storage conflict when dealing with upgradeable contracts."
+                        - generic:
+                          - generic: "* This library helps with reading and writing to such slots without the need for inline assembly."
+                        - generic:
+                          - generic: "*"
+                        - generic:
+                          - generic: "* The functions in this library return Slot structs that contain a `value` member that can be used to read or write."
+                        - generic:
+                          - generic: "*"
+                        - generic:
+                          - generic: "* Example usage to set ERC-1967 implementation slot:"
+                        - generic:
+                          - generic: "* ```solidity"
+                        - generic:
+                          - generic: "* contract ERC1967 {"
+                        - generic:
+                          - generic: "* // Define the slot. Alternatively, use the SlotDerivation library to derive the slot."
+                        - generic:
+                          - generic: "* bytes32 internal constant _IMPLEMENTATION_SLOT = 0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc;"
+                        - generic:
+                          - generic: "*"
+                        - generic:
+                          - generic: "* function _getImplementation() internal view returns (address) {"
+                        - generic:
+                          - generic: "* return StorageSlot.getAddressSlot(_IMPLEMENTATION_SLOT).value;"
+                        - generic:
+                          - generic: "* }"
+                        - generic:
+                          - generic: "*"
+                        - generic:
+                          - generic: "* function _setImplementation(address newImplementation) internal {"
+                        - generic:
+                          - generic: "* require(newImplementation.code.length > 0);"
+                  - generic [ref=e575]:
+                    - generic [ref=e576]: "File 10 of 9 : ERC1967Proxy.sol"
+                    - generic [ref=e577]:
+                      - generic [ref=e578]:
+                        - button "Outline " [ref=e579] [cursor=pointer]
+                        - text: 
+                      - link "Copy source code to clipboard" [ref=e580] [cursor=pointer]:
+                        - /url: javascript:;
+                        - generic [ref=e581]: 
+                      - link "Copy Permalink" [ref=e582] [cursor=pointer]:
+                        - /url: javascript:;
+                        - generic [ref=e583]: 
+                      - link "Toggle Fullscreen" [ref=e584] [cursor=pointer]:
+                        - /url: javascript:;
+                        - generic [ref=e585]: 
+                  - generic [ref=e586]:
+                    - textbox [ref=e587]: "\x01\x01"
+                    - generic [ref=e589]:
+                      - generic [ref=e590]: "1"
+                      - generic [ref=e591]: "2"
+                      - generic [ref=e592]: "3"
+                      - generic [ref=e593]: "4"
+                      - generic [ref=e594]: "5"
+                      - generic [ref=e595]: "6"
+                      - generic [ref=e596]: "7"
+                      - generic [ref=e597]: "8"
+                      - generic [ref=e599]: "9"
+                      - generic [ref=e600]: "10"
+                    - generic [ref=e603]:
+                      - generic:
+                        - generic:
+                          - generic: "// SPDX-License-Identifier: MIT"
+                        - generic:
+                          - generic: pragma solidity ^0.8.20;
+                        - generic:
+                          - generic: import "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol" as OZProxy;
+                        - generic:
+                          - generic: // This contract just re-exports OpenZeppelin's ERC1967Proxy
+                        - generic:
+                          - generic: // so it can be compiled and used in our tests and deployment scripts
+                        - generic:
+                          - generic: "contract ERC1967Proxy is OZProxy.ERC1967Proxy {"
+                        - generic:
+                          - generic: "constructor(address implementation, bytes memory _data) OZProxy.ERC1967Proxy(implementation, _data) {}"
+                        - generic:
+                          - generic: "}"
+                  - generic [ref=e604]:
+                    - generic [ref=e605]: Settings
+                    - generic [ref=e606]:
+                      - link "Copy source code to clipboard" [ref=e607] [cursor=pointer]:
+                        - /url: javascript:;
+                        - generic [ref=e608]: 
+                      - link "Copy Permalink" [ref=e609] [cursor=pointer]:
+                        - /url: javascript:;
+                        - generic [ref=e610]: 
+                      - text: 
+                  - generic [ref=e611]:
+                    - textbox [ref=e612]: "\x01\x01"
+                    - generic [ref=e614]:
+                      - generic [ref=e615]: "1"
+                      - generic [ref=e617]: "2"
+                      - generic [ref=e618]: "3"
+                      - generic [ref=e620]: "4"
+                      - generic [ref=e621]: "5"
+                      - generic [ref=e622]: "6"
+                      - generic [ref=e623]: "7"
+                      - generic [ref=e625]: "8"
+                      - generic [ref=e627]: "9"
+                      - generic [ref=e629]: "10"
+                      - generic [ref=e630]: "11"
+                      - generic [ref=e631]: "12"
+                      - generic [ref=e632]: "13"
+                      - generic [ref=e633]: "14"
+                      - generic [ref=e634]: "15"
+                      - generic [ref=e635]: "16"
+                      - generic [ref=e636]: "17"
+                      - generic [ref=e637]: "18"
+                      - generic [ref=e638]: "19"
+                      - generic [ref=e640]: "20"
+                      - generic [ref=e641]: "21"
+                      - generic [ref=e642]: "22"
+                      - generic [ref=e643]: "23"
+                    - generic [ref=e646]:
+                      - generic:
+                        - generic:
+                          - generic: "{"
+                        - generic:
+                          - generic: "\"evmVersion\": \"shanghai\","
+                        - generic:
+                          - generic: "\"optimizer\": {"
+                        - generic:
+                          - generic: "\"enabled\": true,"
+                        - generic:
+                          - generic: "\"runs\": 200"
+                        - generic:
+                          - generic: "},"
+                        - generic:
+                          - generic: "\"outputSelection\": {"
+                        - generic:
+                          - generic: "\"*\": {"
+                        - generic:
+                          - generic: "\"*\": ["
+                        - generic:
+                          - generic: "\"evm.bytecode\","
+                        - generic:
+                          - generic: "\"evm.deployedBytecode\","
+                        - generic:
+                          - generic: "\"devdoc\","
+                        - generic:
+                          - generic: "\"userdoc\","
+                        - generic:
+                          - generic: "\"metadata\","
+                        - generic:
+                          - generic: "\"abi\""
+                        - generic:
+                          - generic: "]"
+                        - generic:
+                          - generic: "}"
+                        - generic:
+                          - generic: "},"
+                        - generic:
+                          - generic: "\"remappings\": ["
+                        - generic:
+                          - generic: "\"project/:@openzeppelin/contracts/=npm/@openzeppelin/contracts@5.4.0/\""
+                        - generic:
+                          - generic: "],"
+                        - generic:
+                          - generic: "\"viaIR\": true"
+                        - generic:
+                          - generic: "}"
+                - generic [ref=e647]:
+                  - generic [ref=e648]:
+                    - generic [ref=e649]:
+                      - heading " Contract ABI" [level=4] [ref=e650]:
+                        - generic [ref=e651]: 
+                        - text: Contract ABI
+                      - link "  API" [ref=e652] [cursor=pointer]:
+                        - /url: https://docs.etherscan.io/etherscan-v2/api-endpoints/contracts#get-contract-abi-for-verified-contract-source-codes
+                        - generic [ref=e653]:  
+                        - text: API
+                    - generic [ref=e654]:
+                      - link "Copy ABI to clipboard" [ref=e655] [cursor=pointer]:
+                        - /url: javascript:;
+                        - generic [ref=e656]: 
+                      - link "Toggle Fullscreen" [ref=e657] [cursor=pointer]:
+                        - /url: "#"
+                        - generic [ref=e658]: 
+                  - generic [ref=e659]: "[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"implementation\",\"type\":\"address\"},{\"internalType\":\"bytes\",\"name\":\"_data\",\"type\":\"bytes\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"target\",\"type\":\"address\"}],\"name\":\"AddressEmptyCode\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"implementation\",\"type\":\"address\"}],\"name\":\"ERC1967InvalidImplementation\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"ERC1967NonPayable\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"FailedCall\",\"type\":\"error\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"implementation\",\"type\":\"address\"}],\"name\":\"Upgraded\",\"type\":\"event\"},{\"stateMutability\":\"payable\",\"type\":\"fallback\"}]"
+                - generic [ref=e660]:
+                  - generic [ref=e661]:
+                    - heading " Contract Creation Code" [level=4] [ref=e662]:
+                      - generic [ref=e663]: 
+                      - text: Contract Creation Code
+                    - generic [ref=e664]:
+                      - link "Decompile Bytecode " [ref=e665] [cursor=pointer]:
+                        - /url: /bytecode-decompiler?a=0x8004A818BFB912233c491871b3d84c89A494BD9e
+                        - text: Decompile Bytecode
+                        - generic [ref=e666]: 
+                      - link "Switch to Opcodes View" [ref=e667] [cursor=pointer]:
+                        - /url: javascript:;
+                  - generic [ref=e669]: "0x608060405234610174576102b28038038061001981610178565b9283398101906040818303126101745780516001600160a01b0381168082036101745760208381015190936001600160401b038211610174570184601f820112156101745780519061007261006d836101b1565b610178565b958287528583830101116101745784905f5b8381106101605750505f9186010152813b15610148577f360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc80546001600160a01b031916821790557fbc7cd75a20ee27fd9adebab32041f755214dbc6bffa90cc0225b39da2e5c2d3b5f80a28251801561013f575f8091846101269601845af4903d15610136573d61011761006d826101b1565b9081525f81943d92013e6101cc565b505b604051608290816102308239f35b606092506101cc565b50505050610128565b60249060405190634c9c8ce360e01b82526004820152fd5b818101830151888201840152869201610084565b5f80fd5b6040519190601f01601f191682016001600160401b0381118382101761019d57604052565b634e487b7160e01b5f52604160045260245ffd5b6001600160401b03811161019d57601f01601f191660200190565b906101f357508051156101e157602081519101fd5b60405163d6bda27560e01b8152600490fd5b81511580610226575b610204575090565b604051639996b31560e01b81526001600160a01b039091166004820152602490fd5b50803b156101fc56fe60806040527f360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc545f9081906001600160a01b0316368280378136915af43d5f803e156048573d5ff35b3d5ffdfea2646970667358221220d25633e50c873a78e74176feb55eabe7e699db80eeb0380952dba33544b2c7f664736f6c63430008180033000000000000000000000000d53de688e0b0ad436fbdbda00036832ff649923400000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000024c4d66de8000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+                - generic [ref=e670]:
+                  - heading " Deployed Bytecode" [level=4] [ref=e672]:
+                    - generic [ref=e673]: 
+                    - text: Deployed Bytecode
+                  - generic [ref=e674]: "0x60806040527f360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc545f9081906001600160a01b0316368280378136915af43d5f803e156048573d5ff35b3d5ffdfea2646970667358221220d25633e50c873a78e74176feb55eabe7e699db80eeb0380952dba33544b2c7f664736f6c63430008180033"
+            - text:     
+        - text:  
+      - text:  
+      - paragraph [ref=e676]:
+        - generic [ref=e677]: 
+        - generic [ref=e678]:
+          - text: A contract address hosts a smart contract, which is a set of code stored on the blockchain that runs when predetermined conditions are met. Learn more about addresses in our
+          - link "Knowledge Base" [ref=e679] [cursor=pointer]:
+            - /url: https://info.basescan.org/what-is-an-address/
+          - text: .
+    - text:    
+  - text:   
+  - contentinfo [ref=e680]:
+    - generic [ref=e681]:
+      - generic [ref=e682]:
+        - generic [ref=e684]:
+          - generic [ref=e685]:
+            - img "Base Sepolia Network Logo" [ref=e686]
+            - generic [ref=e687]: Powered By Base
+          - link " Back to Top" [ref=e688] [cursor=pointer]:
+            - /url: "#"
+            - generic [ref=e689]: 
+            - text: Back to Top
+        - button "Metamask Add Base Sepolia Network" [ref=e691] [cursor=pointer]:
+          - img "Metamask" [ref=e692]
+          - text: Add Base Sepolia Network
+      - generic [ref=e694]:
+        - paragraph [ref=e696]:
+          - text: BaseScan © 2026 (BASE-Sepolia-A) | ⛏ Built by Team
+          - link "Etherscan " [ref=e697] [cursor=pointer]:
+            - /url: https://etherscan.io
+            - strong [ref=e698]: Etherscan
+            - generic [ref=e699]: 
+        - generic [ref=e701]:
+          - generic [ref=e702]:
+            - link "Terms" [ref=e703] [cursor=pointer]:
+              - /url: https://sepolia.basescan.org/terms
+            - text: "&"
+            - link "Privacy" [ref=e704] [cursor=pointer]:
+              - /url: https://sepolia.basescan.org/privacyPolicy
+          - generic [ref=e705]: "|"
+          - link "Network Status" [ref=e706] [cursor=pointer]:
+            - /url: ""
+          - generic [ref=e707]: "|"
+          - paragraph [ref=e708]:
+            - text: "Donations:"
+            - link "0x71c765...d8976f" [ref=e709] [cursor=pointer]:
+              - /url: /address/0x71c7656ec7ab88b098defb751b7401b5f6d8976f
+            - generic [ref=e710]: 
+  - alert [ref=e712]:
+    - paragraph [ref=e713]:
+      - generic [ref=e714]: 
+      - text: This website
+      - link "uses cookies to improve your experience" [ref=e715] [cursor=pointer]:
+        - /url: /terms#cookiestatement
+      - text: . By continuing to use this website, you agree to its
+      - link "Terms" [ref=e716] [cursor=pointer]:
+        - /url: /terms
+      - text: and
+      - link "Privacy Policy" [ref=e717] [cursor=pointer]:
+        - /url: /privacyPolicy
+      - text: .
+    - button "Close" [ref=e718] [cursor=pointer]: Got it!

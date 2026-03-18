@@ -23,7 +23,7 @@ export function TrustLeaderboard({ agents }: Props) {
         <div className="leaderboard__row leaderboard__row--header">
           <span>#</span>
           <span>Agent</span>
-          <span>BTC Stake</span>
+          <span>ETH Stake</span>
           <span style={{ textAlign: "center" }}>Trust</span>
           <span style={{ textAlign: "center" }}>Requests</span>
         </div>
@@ -36,7 +36,7 @@ export function TrustLeaderboard({ agents }: Props) {
               <span className="leaderboard__agent-name">{agent.name}</span>
               <a
                 className="leaderboard__agent-wallet"
-                href={`https://explorer.testnet3.goat.network/address/${agent.wallet}`}
+                href={`https://sepolia.basescan.org/address/${agent.wallet}`}
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -50,7 +50,7 @@ export function TrustLeaderboard({ agents }: Props) {
                   style={{ width: `${(agent.btcStake / maxStake) * 100}%` }}
                 />
               </div>
-              <div className="stake-bar__label">{agent.btcStake.toFixed(6)} BTC</div>
+              <div className="stake-bar__label">{agent.btcStake.toFixed(6)} ETH</div>
             </div>
             <span className="leaderboard__score" style={{ color: tierColor(agent.tier) }}>
               {agent.trustScore.toFixed(1)}

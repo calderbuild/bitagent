@@ -1,8 +1,11 @@
 import { ethers } from "ethers";
 
-export const GOAT_RPC = process.env.GOAT_RPC_URL || "https://rpc.testnet3.goat.network";
-export const GOAT_CHAIN_ID = 48816;
-export const GOAT_NETWORK = `eip155:${GOAT_CHAIN_ID}`;
+export const CHAIN_RPC = process.env.CHAIN_RPC_URL || "https://sepolia.base.org";
+export const CHAIN_ID = parseInt(process.env.CHAIN_ID || "84532");
+export const NETWORK_CAIP = `eip155:${CHAIN_ID}`;
+export const EXPLORER_URL = process.env.EXPLORER_URL || "https://sepolia.basescan.org";
+export const NETWORK_NAME = process.env.NETWORK_NAME || "Base Sepolia";
+export const NATIVE_SYMBOL = process.env.NATIVE_SYMBOL || "ETH";
 
 // Contract addresses (set after deployment)
 export const MOCK_USDC_ADDRESS = process.env.MOCK_USDC_ADDRESS || "";
@@ -11,7 +14,7 @@ export const IDENTITY_REGISTRY_ADDRESS = process.env.IDENTITY_REGISTRY_ADDRESS |
 export const REPUTATION_REGISTRY_ADDRESS = process.env.REPUTATION_REGISTRY_ADDRESS || "";
 
 export function getProvider() {
-  return new ethers.JsonRpcProvider(GOAT_RPC, GOAT_CHAIN_ID);
+  return new ethers.JsonRpcProvider(CHAIN_RPC, CHAIN_ID);
 }
 
 export function getWallet(privateKey: string) {

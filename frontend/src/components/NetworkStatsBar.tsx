@@ -1,4 +1,4 @@
-import { Blocks, Bitcoin } from "lucide-react";
+import { Blocks, Coins } from "lucide-react";
 import type { NetworkStats } from "../types";
 
 interface Props {
@@ -11,7 +11,7 @@ export function NetworkStatsBar({ stats, connected }: Props) {
     <div className="stats-bar">
       <div className="stats-bar__logo">
         <span className="stats-bar__logo-text">BitAgent</span>
-        <span className="stats-bar__logo-sub">GOAT Network</span>
+        <span className="stats-bar__logo-sub">Base Sepolia</span>
       </div>
 
       <div className="stat-item">
@@ -27,9 +27,9 @@ export function NetworkStatsBar({ stats, connected }: Props) {
       </div>
 
       <div className="stat-item">
-        <span className="stat-item__label">BTC Staked</span>
+        <span className="stat-item__label">ETH Staked</span>
         <span className="stat-item__value stat-item__value--btc">
-          <Bitcoin size={13} style={{ verticalAlign: "middle", marginRight: 4 }} />
+          <Coins size={13} style={{ verticalAlign: "middle", marginRight: 4 }} />
           {stats.totalBtcStaked.toFixed(6)}
         </span>
       </div>
@@ -43,7 +43,7 @@ export function NetworkStatsBar({ stats, connected }: Props) {
         <span className="stat-item__label">Block Height</span>
         <a
           className="stat-item__value stat-item__link"
-          href={`https://explorer.testnet3.goat.network/block/${stats.blockHeight}`}
+          href={`https://sepolia.basescan.org/block/${stats.blockHeight}`}
           target="_blank"
           rel="noopener noreferrer"
         >

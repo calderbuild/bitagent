@@ -7,7 +7,10 @@ import { wrapFetchWithPayment } from "@x402/fetch";
 import { toClientEvmSigner } from "@x402/evm";
 import {
   getWallet,
-  GOAT_CHAIN_ID,
+  CHAIN_ID,
+  NETWORK_CAIP,
+  EXPLORER_URL,
+  NATIVE_SYMBOL,
   MOCK_USDC_ADDRESS,
   MOCK_USDC_ABI,
   REPUTATION_REGISTRY_ADDRESS,
@@ -16,7 +19,7 @@ import {
 import { toErrorMessage } from "../core/utils.js";
 import { agentInfoUrl, agentEndpoint, type ServiceType } from "../core/agents.js";
 
-const GOAT_NETWORK_CAIP = `eip155:${GOAT_CHAIN_ID}` as `${string}:${string}`;
+const CAIP_NETWORK = NETWORK_CAIP as `${string}:${string}`;
 const FACILITATOR_BASE = "http://localhost:4022";
 const ONE_USDC = 1_000_000n; // 6 decimals
 const FEEDBACK_SCORE = 80n;
@@ -137,7 +140,7 @@ class DemoClient {
     const account = privateKeyToAccount(privateKey as `0x${string}`);
     const signer = toClientEvmSigner(account);
     const evmScheme = new ExactEvmScheme(signer);
-    const client = new x402Client().register(GOAT_NETWORK_CAIP, evmScheme);
+    const client = new x402Client().register(CAIP_NETWORK, evmScheme);
     this.paidFetch = wrapFetchWithPayment(globalThis.fetch, client);
   }
 
@@ -152,7 +155,7 @@ class DemoClient {
     const btc = await this.wallet.provider.getBalance(this.wallet.address);
     const btcFmt = ethers.formatEther(btc);
     console.log(`[Client] Wallet: ${this.wallet.address}`);
-    console.log(`[Client] BTC Balance: ${btcFmt}`);
+    console.log(`[Client] ${NATIVE_SYMBOL} Balance: ${btcFmt}`);
   }
 
   async ensureUsdc(minBalance: bigint = ONE_USDC): Promise<void> {
@@ -314,7 +317,7 @@ export async function runDemoClient(): Promise<void> {
     const feedbackTxHash = await timedStep(`Submit on-chain feedback for ${service.label}`, async () => {
       return client.submitFeedback(agentInfo.agentId, service.serviceType, service.endpoint);
     });
-    console.log(`[Client] Feedback tx: https://explorer.testnet3.goat.network/tx/${feedbackTxHash}`);
+    console.log(`[Client] Feedback tx: ${EXPLORER_URL}/tx/${feedbackTxHash}`);
 
     await timedStep(`Push feedback event for ${service.label} to facilitator`, async () => {
       await client.pushFeedbackEvent({

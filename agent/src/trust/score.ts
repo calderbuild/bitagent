@@ -19,15 +19,15 @@ export interface TrustResult {
 
 // Threshold for logarithmic stake normalization.
 // At this stake level an agent achieves full stake score.
-// Uses log curve so demo-range stakes (0.000005-0.00001 BTC) produce meaningful scores.
+// Uses log curve so demo-range stakes (0.000005-0.00001 ETH) produce meaningful scores.
 const STAKE_THRESHOLD_ETHER = 0.00001;
 
 /**
  * Calculate agent trust score.
- * BTC stake is weighted highest (40%) -- core differentiator.
+ * ETH stake is weighted highest (40%) -- core differentiator.
  */
 export function calculateTrustScore(input: TrustInput): TrustResult {
-  // BTC stake (40%): logarithmic normalization for diminishing returns
+  // ETH stake (40%): logarithmic normalization for diminishing returns
   const stakeEther = Number(input.btcStake) / 1e18;
   const stakeRatio = stakeEther / STAKE_THRESHOLD_ETHER;
   const stakeNormalized = Math.min(100, 100 * Math.log2(1 + stakeRatio) / Math.log2(2));

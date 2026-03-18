@@ -3,9 +3,9 @@ pragma solidity ^0.8.24;
 
 /**
  * @title StakingVault
- * @notice BTC staking vault for AI agent trust on GOAT Network.
- * @dev Agents stake native BTC (GOAT's gas token) as trust collateral.
- *      BTC is 18 decimals on GOAT, payable functions receive it directly.
+ * @notice ETH staking vault for AI agent trust.
+ * @dev Agents stake native ETH as trust collateral.
+ *      ETH is 18 decimals, payable functions receive it directly.
  */
 contract StakingVault {
     struct Stake {
@@ -20,7 +20,7 @@ contract StakingVault {
     address public admin;
     address public slashOracle;
     uint256 public cooldownPeriod = 7 days;
-    uint256 public minimumStake = 0.001 ether; // 0.001 BTC
+    uint256 public minimumStake = 0.001 ether; // 0.001 ETH
 
     event Staked(uint256 indexed agentId, address indexed owner, uint256 amount);
     event Slashed(uint256 indexed agentId, uint256 amount, string reason);
@@ -42,7 +42,7 @@ contract StakingVault {
         slashOracle = _slashOracle;
     }
 
-    /// @notice Agent stakes BTC (native gas token on GOAT)
+    /// @notice Agent stakes native ETH as trust collateral
     function stake(uint256 agentId) external payable {
         require(msg.value >= minimumStake, "Below minimum stake");
         Stake storage s = agentStakes[agentId];

@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-BitAgent is a BTC-secured AI agent service network on GOAT Network (Bitcoin L2, chain ID 48816). Agents stake real BTC, register ERC-8004 identities, and sell services via x402 micropayments (HTTP 402). Three subpackages: `contracts/`, `agent/`, `frontend/`.
+BitAgent is an ETH-secured AI agent service network on Base Sepolia (Ethereum L2, chain ID 84532). Agents stake ETH, register ERC-8004 identities, and sell services via x402 micropayments (HTTP 402). Three subpackages: `contracts/`, `agent/`, `frontend/`.
 
 ## Environment Setup
 
@@ -23,10 +23,10 @@ PATH=~/.nvm/versions/node/v22.22.0/bin:$PATH npx vite --port 5173
 ```bash
 npm run build           # compile Solidity (hardhat compile)
 npm test                # run tests (hardhat test)
-npm run deploy:testnet  # deploy MockUSDC + StakingVault to GOAT Testnet3
-npx hardhat run scripts/deploy-erc8004.ts --network goatTestnet3  # deploy ERC-8004 proxies
-npx hardhat run scripts/set-min-stake.ts --network goatTestnet3   # lower minimum stake
-npx hardhat run scripts/check-stakes.ts --network goatTestnet3    # inspect on-chain stakes
+npm run deploy:testnet  # deploy MockUSDC + StakingVault to Base Sepolia
+npx hardhat run scripts/deploy-erc8004.ts --network baseSepolia  # deploy ERC-8004 proxies
+npx hardhat run scripts/set-min-stake.ts --network baseSepolia   # lower minimum stake
+npx hardhat run scripts/check-stakes.ts --network baseSepolia    # inspect on-chain stakes
 ```
 
 ### Agent (`cd agent/`)
@@ -58,18 +58,18 @@ npm run lint   # eslint
 
 ### Service startup order
 1. `facilitator/server.ts` must start first (agents need it for x402 payment verification)
-2. `services/*.ts` -- each agent boots, registers ERC-8004 identity, stakes BTC, then listens
+2. `services/*.ts` -- each agent boots, registers ERC-8004 identity, stakes ETH, then listens (start sequentially to avoid nonce conflicts)
 3. `frontend/` connects to facilitator APIs at `http://localhost:4022`
 
 ### Agent boot sequence (`agent/src/core/agent.ts`)
-`BitAgent.boot()` runs in order: check BTC balance → `registerIdentity()` (scan existing ERC-8004 tokens by name match in tokenURI, register if not found) → `stakeBTC()` (non-fatal, wrapped in try/catch) → start Express server with x402 payment middleware.
+`BitAgent.boot()` runs in order: check ETH balance → `registerIdentity()` (scan existing ERC-8004 tokens by name match in tokenURI, register if not found) → `stakeETH()` (non-fatal, wrapped in try/catch) → start Express server with x402 payment middleware.
 
 Each service (e.g. `code-auditor.ts`) instantiates `BitAgent` with its config and passes a handler function to `boot()`.
 
 ### x402 payment flow
 - Facilitator at `:4022` handles `/verify` and `/settle` endpoints used by `@x402/express` middleware
 - Agents use `paymentMiddleware(routes, resourceServer)` which gates `POST /api/<service>` behind an x402 payment requirement
-- Payment token: MockUSDC (6 decimals) on GOAT Testnet3
+- Payment token: MockUSDC (6 decimals) on Base Sepolia
 - Client uses `@x402/fetch` to auto-pay and retry
 
 ### Facilitator aggregation APIs (not part of x402 protocol)
@@ -80,14 +80,14 @@ These are custom endpoints added for the dashboard:
 - `GET /api/events` -- in-memory event log (resets on restart)
 
 ### Trust score (`agent/src/trust/score.ts`)
-Composite score 0-100: BTC stake (40%) + ERC-8004 reputation (30%) + feedback count (15%) + slash/uptime stability (15%). Tiers: diamond ≥80, gold ≥60, silver ≥40, bronze ≥20.
+Composite score 0-100: ETH stake (40%) + ERC-8004 reputation (30%) + feedback count (15%) + slash/uptime stability (15%). Tiers: diamond ≥80, gold ≥60, silver ≥40, bronze ≥20.
 
 ### LLM client (`agent/src/core/llm.ts`)
 OpenAI-compatible `chatCompletion(systemPrompt, userMessage, maxTokens)`. Configure via env: `LLM_API_KEY`, `LLM_BASE_URL`, `LLM_MODEL`.
 
 ### Contracts
 - **MockUSDC** -- ERC-20 with `transferWithAuthorization` (EIP-3009) for x402 pull payments
-- **StakingVault** -- agents stake native BTC; admin can `slash(agentId, amount, reason)`; `effectiveStake = amount - slashed`; minimum stake configurable via `setMinimumStake()`
+- **StakingVault** -- agents stake native ETH; admin can `slash(agentId, amount, reason)`; `effectiveStake = amount - slashed`; minimum stake configurable via `setMinimumStake()`
 - **IdentityRegistryUpgradeable** -- ERC-721-based ERC-8004 identity; `register(agentURI)` mints token; deployed via UUPS proxy
 - **ReputationRegistryUpgradeable** -- ERC-8004 reputation; `giveFeedback()` and `getSummary()`; deployed via UUPS proxy
 - Proxy addresses in `.env`: `IDENTITY_REGISTRY_ADDRESS`, `REPUTATION_REGISTRY_ADDRESS`
@@ -98,6 +98,19 @@ React 19 + Vite 7, pure CSS (no Tailwind). Polls facilitator APIs every 3-8 seco
 ## Known Constraints
 
 - All testnet agents share a single wallet (`FACILITATOR_KEY`). Each agent is differentiated by its `name` field in the ERC-8004 tokenURI -- `registerIdentity()` scans tokens 0-20 looking for a name match before registering a new one.
-- Testnet BTC stakes are micro-amounts (0.000005-0.000008 BTC). The frontend uses 6 decimal places for BTC display.
-- StakingVault minimum stake was lowered to 0.000001 BTC via `set-min-stake.ts` on the deployed contract.
+- Testnet ETH stakes are micro-amounts (0.000005-0.000008 ETH). The frontend uses 6 decimal places for ETH display.
+- StakingVault minimum stake was lowered to 0.000001 ETH via `set-min-stake.ts` on the deployed contract.
 - The in-memory event log in the facilitator resets whenever the facilitator process restarts.
+- ERC-8004 proxy 部署后 `getVersion()` 可能返回空数据（自定义实现未必实现该方法），deploy 脚本应 try/catch 包裹。
+- `agent/` 子包不会自动加载根目录 `.env`，启动 agent 前需手动注入：`export $(grep -v '^#' .env | grep -v '^$' | xargs)`。
+- 多个 agent 共用同一钱包时必须串行启动，并行启动会导致 nonce 冲突（replacement transaction underpriced）。
+- Hardhat 部署脚本中合约地址应从 `process.env` 读取，不要硬编码，否则切网络后失效。
+
+## Deployed Contracts (Base Sepolia)
+
+| Contract | Address |
+|----------|---------|
+| MockUSDC | `0x3f0098EEd2FbB5989a6847d1EF27FB9838f051f2` |
+| StakingVault | `0x975bD215C549F315A066306B161119cec480c927` |
+| IdentityRegistry (proxy) | `0x75ED93F08c4CFd9aaF93C5693Ff996d8D8A6CA61` |
+| ReputationRegistry (proxy) | `0xB7693987DA26b5D1B584755046ebD0448092f30D` |

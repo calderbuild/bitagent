@@ -12,7 +12,10 @@
     "@openzeppelin/contracts": "^5.4.0",
     "@openzeppelin/contracts-upgradeable": "^5.4.0",
     "hardhat": "^2.22.0",
-    "typescript": "^5.4.0",
-    "ts-node": "^10.9.0"
+    "ts-node": "^10.9.0",
+    "typescript": "^5.4.0"
+  },
+  "dependencies": {
+    "dotenv": "^17.3.1"
   }
 }

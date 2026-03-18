@@ -6,7 +6,7 @@ interface Props {
   transactions: Transaction[];
 }
 
-const EXPLORER = "https://explorer.testnet3.goat.network";
+const EXPLORER = "https://sepolia.basescan.org";
 
 function formatTime(ts: number): string {
   const d = new Date(ts);

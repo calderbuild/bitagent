@@ -11,8 +11,9 @@ import {
   IDENTITY_REGISTRY_ADDRESS,
   IDENTITY_REGISTRY_ABI,
   MOCK_USDC_ADDRESS,
-  GOAT_CHAIN_ID,
-  GOAT_NETWORK,
+  CHAIN_ID,
+  NETWORK_CAIP,
+  NATIVE_SYMBOL,
 } from "./config.js";
 
 const FACILITATOR_URL = process.env.FACILITATOR_URL || "http://localhost:4022";
@@ -25,7 +26,7 @@ export interface AgentConfig {
   description: string;
   privateKey: string;
   port: number;
-  stakeAmount: string; // in ether (BTC) e.g. "0.01"
+  stakeAmount: string; // in ether e.g. "0.01"
   priceUsdc: number;   // USDC amount e.g. 0.01
   serviceEndpoint: string; // e.g. "/api/audit"
   agentId?: number;
@@ -36,7 +37,7 @@ export interface ServiceHandler {
 }
 
 /**
- * BitAgent: autonomous AI service agent with BTC staking and x402 payments.
+ * BitAgent: autonomous AI service agent with ETH staking and x402 payments.
  */
 export class BitAgent {
   private wallet: ethers.Wallet;
@@ -82,7 +83,7 @@ export class BitAgent {
   }
 
   /**
-   * Boot sequence: stake BTC, then start HTTP server with x402 middleware.
+   * Boot sequence: stake ETH, then start HTTP server with x402 middleware.
    */
   async boot(handler: ServiceHandler): Promise<void> {
     console.log(`[${this.config.name}] Booting...`);
@@ -90,7 +91,7 @@ export class BitAgent {
 
     // Check BTC balance
     const balance = await getProvider().getBalance(this.wallet.address);
-    console.log(`[${this.config.name}] BTC Balance: ${ethers.formatEther(balance)}`);
+    console.log(`[${this.config.name}] ${NATIVE_SYMBOL} Balance: ${ethers.formatEther(balance)}`);
 
     // Register ERC-8004 identity
     if (IDENTITY_REGISTRY_ADDRESS) {
@@ -168,14 +169,14 @@ export class BitAgent {
     try {
       const info = await vault.getStakeInfo(this.agentId || 0);
       if (info[4]) { // active
-        console.log(`[${this.config.name}] Already staked: ${ethers.formatEther(info[0])} BTC`);
+        console.log(`[${this.config.name}] Already staked: ${ethers.formatEther(info[0])} ${NATIVE_SYMBOL}`);
         return;
       }
     } catch {
       // Not staked yet
     }
 
-    console.log(`[${this.config.name}] Staking ${this.config.stakeAmount} BTC...`);
+    console.log(`[${this.config.name}] Staking ${this.config.stakeAmount} ${NATIVE_SYMBOL}...`);
     const tx = await vault.stake(this.agentId || 0, { value: stakeWei });
     await tx.wait();
     console.log(`[${this.config.name}] Staked! TX: ${tx.hash}`);
@@ -196,7 +197,7 @@ export class BitAgent {
         wallet: this.wallet.address,
         service: this.config.serviceEndpoint,
         price: `$${this.config.priceUsdc}`,
-        network: GOAT_NETWORK,
+        network: NETWORK_CAIP,
         stakeAmount: this.config.stakeAmount,
       });
     });
@@ -209,7 +210,7 @@ export class BitAgent {
     const evmScheme = new ExactEvmScheme();
 
     const resourceServer = new x402ResourceServer(facilitatorClient)
-      .register(GOAT_NETWORK as `${string}:${string}`, evmScheme);
+      .register(NETWORK_CAIP as `${string}:${string}`, evmScheme);
 
     // Use AssetAmount format to bypass default network asset lookup
     // Mock USDC has 6 decimals
@@ -223,7 +224,7 @@ export class BitAgent {
       [method]: {
         accepts: {
           scheme: "exact" as const,
-          network: GOAT_NETWORK as `${string}:${string}`,
+          network: NETWORK_CAIP as `${string}:${string}`,
           payTo: this.wallet.address,
           maxTimeoutSeconds: 300,
           price: {

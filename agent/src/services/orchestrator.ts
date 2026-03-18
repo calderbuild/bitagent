@@ -8,7 +8,7 @@ import { toClientEvmSigner } from "@x402/evm";
 import { BitAgent } from "../core/agent.js";
 import { chatCompletion } from "../core/llm.js";
 import {
-  GOAT_CHAIN_ID,
+  NETWORK_CAIP,
   MOCK_USDC_ADDRESS,
   MOCK_USDC_ABI,
   getWallet,
@@ -16,7 +16,7 @@ import {
 import { toErrorMessage } from "../core/utils.js";
 import { agentInfoUrl, agentEndpoint } from "../core/agents.js";
 
-const GOAT_NETWORK_CAIP = `eip155:${GOAT_CHAIN_ID}` as `${string}:${string}`;
+const CAIP_NETWORK = NETWORK_CAIP as `${string}:${string}`;
 const FACILITATOR_BASE = "http://localhost:4022";
 const ONE_USDC = 1_000_000n; // 6 decimals
 
@@ -90,7 +90,7 @@ class OrchestratorCaller {
     const account = privateKeyToAccount(privateKey as `0x${string}`);
     const signer = toClientEvmSigner(account);
     const evmScheme = new ExactEvmScheme(signer);
-    const client = new x402Client().register(GOAT_NETWORK_CAIP, evmScheme);
+    const client = new x402Client().register(CAIP_NETWORK, evmScheme);
     this.paidFetch = wrapFetchWithPayment(globalThis.fetch, client);
   }
 

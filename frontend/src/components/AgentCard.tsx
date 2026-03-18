@@ -30,7 +30,7 @@ export function AgentCard({ agent, onTry }: Props) {
           {agent.wallet && (
             <a
               className="agent-card__wallet"
-              href={`https://explorer.testnet3.goat.network/address/${agent.wallet}`}
+              href={`https://sepolia.basescan.org/address/${agent.wallet}`}
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -66,7 +66,7 @@ export function AgentCard({ agent, onTry }: Props) {
         <div className="trust-gauge__rep">Rep: {agent.reputationScore.toFixed(0)}/100</div>
         {agent.trustBreakdown && (
           <div className="trust-breakdown">
-            <TrustBar label="BTC Stake" value={agent.trustBreakdown.stakeScore} max={40} color="var(--btc-orange)" />
+            <TrustBar label="ETH Stake" value={agent.trustBreakdown.stakeScore} max={40} color="var(--btc-orange)" />
             <TrustBar label="Reputation" value={agent.trustBreakdown.reputationScore} max={30} color="var(--blue)" />
             <TrustBar label="Feedback" value={agent.trustBreakdown.feedbackScore} max={15} color="var(--green)" />
             <TrustBar label="Stability" value={agent.trustBreakdown.stabilityScore} max={15} color="var(--tier-silver)" />
@@ -76,7 +76,7 @@ export function AgentCard({ agent, onTry }: Props) {
 
       <div className="agent-card__stats">
         <div className="agent-card__stat">
-          <span className="agent-card__stat-label">BTC Stake</span>
+          <span className="agent-card__stat-label">ETH Stake</span>
           <span className="agent-card__stat-value agent-card__stat-value--btc">
             {agent.btcStake.toFixed(6)}
           </span>

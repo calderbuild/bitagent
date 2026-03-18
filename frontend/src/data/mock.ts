@@ -81,8 +81,8 @@ export function generateTransaction(agents: Agent[]): Transaction {
 
   const amounts: Record<Transaction["type"], string> = {
     payment: `${agent.pricePerCall} USDC`,
-    stake: `${(Math.random() * 0.005 + 0.001).toFixed(4)} BTC`,
-    slash: `${(Math.random() * 0.002 + 0.001).toFixed(4)} BTC`,
+    stake: `${(Math.random() * 0.005 + 0.001).toFixed(4)} ETH`,
+    slash: `${(Math.random() * 0.002 + 0.001).toFixed(4)} ETH`,
     feedback: `${Math.floor(Math.random() * 30 + 70)}/100`,
   };
 
@@ -93,7 +93,7 @@ export function generateTransaction(agents: Agent[]): Transaction {
     agentName: agent.name,
     agentId: agent.agentId,
     amount: amounts[type],
-    currency: type === "payment" ? "USDC" : type === "feedback" ? "score" : "BTC",
+    currency: type === "payment" ? "USDC" : type === "feedback" ? "score" : "ETH",
     clientAddress: `0x${Math.random().toString(16).slice(2, 6)}...${Math.random().toString(16).slice(2, 6)}`,
     status: "confirmed",
   };
@@ -105,5 +105,5 @@ export const MOCK_NETWORK_STATS: NetworkStats = {
   totalTransactions: 201,
   networkStatus: "live",
   blockHeight: 1847293,
-  chainId: 48816,
+  chainId: 84532,
 };
